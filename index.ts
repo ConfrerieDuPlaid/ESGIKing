@@ -1,4 +1,6 @@
 import {config} from "dotenv";
 config();
 
-console.log(process.env.PORT)
+const app = require("express")
+
+app.listen(process.env.PORT)
