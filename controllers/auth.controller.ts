@@ -5,10 +5,17 @@ import {DefaultController} from "./default.controller";
 export class AuthController extends DefaultController {
     async createUser (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
+            let authBasic = req.headers.authorization
+            let authToken = null
+            if (typeof authBasic === "string") {
+                const authStr = authBasic.split(" ")
+                authToken = authStr[1]
+            }
             return await AuthService.getInstance().subscribe({
                 login: req.body.login,
-                password: req.body.password
-            })
+                password: req.body.password,
+                role: req.body.role !== null ? req.body.role : null
+            }, authToken)
         })
     }
 

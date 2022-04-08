@@ -1,7 +1,6 @@
 import {UserDocument, UserModel, UserProps} from "../models";
-import {SecurityUtils} from "../utils";
+import {ErrorResponse, SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
-import mongoose from "mongoose";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
@@ -18,16 +17,30 @@ export class AuthService {
 
     private constructor() { }
 
-    public async subscribe (user: UserWithoutId): Promise<UserDocument> {
+    public async isValidRole(token: string | null, expectedRole: string): Promise<boolean> {
+        if (token === null || token === "") return false
+        const user = await UserModel.findOne({
+            sessions: token
+        })
+        return user.role === expectedRole
+    }
+
+    public async subscribe(user: UserWithoutId, token: string | null): Promise<UserDocument> {
         if (!user.password) {
-            throw new Error("Missing password !")
+            throw new ErrorResponse("Missing password !", 400)
         }
 
-        const model = new UserModel({
+        if (user.role === "Admin" && !await this.isValidRole(token, "BigBoss")) {
+            throw new ErrorResponse("You have to be logged in as a Big Boss to create an Admin", 403)
+        }
+
+        let userData = {
             login: user.login,
             password: SecurityUtils.sha512(user.password),
+            role: user.role
+        }
 
-        })
+        const model = new UserModel(userData)
         return model.save()
     }
 
@@ -37,7 +50,7 @@ export class AuthService {
             password: SecurityUtils.sha512(data.password)
         })
         if (user === null) {
-            throw Error("Wrong credentials")
+            throw new ErrorResponse("Wrong credentials", 404)
         }
 
         const curDate = new Date()
@@ -47,11 +60,8 @@ export class AuthService {
             expiration: expDate,
             user: user._id
         })
-        if (session instanceof SessionModel) {
-            user.sessions.push(session._id)
-            user.save()
-            return session
-        }
-        throw new Error("Couldn't init session")
+        user.sessions.push(session._id)
+        user.save()
+        return session
     }
 }
