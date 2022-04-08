@@ -1,7 +1,7 @@
 {
   "name": "burgerapi",
   "version": "0.1.0",
-  "description": "",
+  "description": "Réalisation d’une API Node.JS permettant de réaliser des commandes aux bornes, sur un téléphone, ou en ligne pour une chaine de fast food et de gérer aussi les commandes en cuisine.",
   "main": "./dist/index.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc",
@@ -26,5 +26,6 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mongoose": "^6.2.9"
-  }
+  },
+  "types": "./dist/index.d.ts"
 }
