@@ -1,7 +1,6 @@
 import {UserDocument, UserModel, UserProps} from "../models";
 import {ErrorResponse, SecurityUtils, DateUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
-import exp from "constants";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">

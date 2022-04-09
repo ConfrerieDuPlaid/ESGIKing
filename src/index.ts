@@ -5,6 +5,7 @@ config();
 import express from "express";
 import mongoose from "mongoose";
 import {AuthController} from "./controllers/"
+import {RestaurantController} from "./controllers/restaurant.controller";
 
 const controllerPaths = {
     "/auth": AuthController
@@ -24,8 +25,11 @@ async function startServer (): Promise<void> {
         res.send("Hello and welcome to ESGIKing !")
     })
 
+    //Voir si on pourra automatiser les loads
     const authController = new AuthController()
+    const restaurantController = new RestaurantController()
     app.use('/auth', authController.buildRoutes())
+    app.use('/restaurant', restaurantController.buildRoutes())
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);

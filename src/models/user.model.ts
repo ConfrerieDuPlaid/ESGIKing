@@ -19,6 +19,10 @@ const userSchema = new Schema({
         enum: ["BigBoss", "Admin", "Customer", "OrderPicker", "DeliveryMan"],
         default: "Customer",
         required: true
+    },
+    restaurant: {
+        type: Schema.Types.ObjectId,
+        ref: "Restaurant"
     }
 
 }, {
@@ -33,6 +37,7 @@ export interface UserProps {
     password: string
     sessions: string[]
     role: string
+    restaurant: string
 }
 
 export type UserDocument = UserProps & Document
