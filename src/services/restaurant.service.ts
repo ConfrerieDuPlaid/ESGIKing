@@ -38,6 +38,13 @@ export class RestaurantService {
         })
     }
 
+    public async deleteRestaurant (restaurantID: string): Promise<boolean> {
+        const res = await RestaurantModel.deleteOne({
+            _id: restaurantID
+        }).exec()
+        return res.deletedCount === 1
+    }
+
     public async getAllRestaurants (): Promise<RestaurantDocument[] | null> {
         return await RestaurantModel.find()
     }
