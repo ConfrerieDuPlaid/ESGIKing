@@ -1,5 +1,5 @@
 import {UserDocument, UserModel, UserProps} from "../models";
-import {ErrorResponse, SecurityUtils} from "../utils";
+import {ErrorResponse, SecurityUtils, DateUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
 import exp from "constants";
 
@@ -7,7 +7,6 @@ type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
 
 export class AuthService {
-    private sevenDaysInMs: number = 7*24*3600*1000
 
     private static instance: AuthService
 
@@ -64,9 +63,7 @@ export class AuthService {
             throw new ErrorResponse("Wrong credentials", 404)
         }
 
-        const curDate = new Date()
-        const expDate = new Date(curDate.valueOf() + this.sevenDaysInMs)
-        console.log(curDate, expDate)
+        const expDate: Date = DateUtils.addNDaysToNow(7)
         const session = await SessionModel.create({
             platform: platform,
             expiration: expDate,
