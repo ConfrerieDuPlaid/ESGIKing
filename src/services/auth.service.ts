@@ -1,11 +1,14 @@
 import {UserDocument, UserModel, UserProps} from "../models";
 import {ErrorResponse, SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
+import exp from "constants";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
 
 export class AuthService {
+    private sevenDaysInMs: number = 7*24*3600*1000
+
     private static instance: AuthService
 
     public static getInstance (): AuthService {
@@ -17,15 +20,20 @@ export class AuthService {
 
     private constructor() { }
 
-    public async isValidRole(token: string | null, expectedRole: string): Promise<boolean> {
+    public async isValidRole  (token: string | null, expectedRole: string): Promise<boolean> {
+        if (token === null || token === "" || !await this.isValidSession(token)) return false
+        const user = await UserModel.findOne({
+            sessions: token
+        })
+        return user.role === expectedRole
+    }
+
+    public async isValidSession (token: string | null): Promise<boolean> {
         if (token === null || token === "") return false
         const session = await SessionModel.findOne({
             _id: token
         })
-        const user = await UserModel.findOne({
-            _id: session.user
-        })
-        return user.role === expectedRole
+        return session.expiration > new Date()
     }
 
     public async subscribe(user: UserWithoutId, token: string | null): Promise<UserDocument> {
@@ -36,6 +44,7 @@ export class AuthService {
         if (user.role === "Admin" && !await this.isValidRole(token, "BigBoss")) {
             throw new ErrorResponse("You have to be logged in as a Big Boss to create an Admin", 403)
         }
+
         let userData = {
             login: user.login,
             password: SecurityUtils.sha512(user.password),
@@ -56,7 +65,8 @@ export class AuthService {
         }
 
         const curDate = new Date()
-        const expDate = new Date(curDate.getTime() + (7*24*3600))
+        const expDate = new Date(curDate.valueOf() + this.sevenDaysInMs)
+        console.log(curDate, expDate)
         const session = await SessionModel.create({
             platform: platform,
             expiration: expDate,
