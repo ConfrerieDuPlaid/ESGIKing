@@ -22,7 +22,8 @@ const userSchema = new Schema({
     },
     restaurant: {
         type: Schema.Types.ObjectId,
-        ref: "Restaurant"
+        ref: "Restaurant",
+        require: false
     }
 
 }, {

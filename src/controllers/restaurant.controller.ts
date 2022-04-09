@@ -1,7 +1,7 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
-import {AuthService, RestaurantService} from "../services";
-import {ErrorResponse, getAuthorization} from "../utils";
+import {RestaurantService} from "../services";
+import {verifyPermissions} from "../utils";
 import {Roles} from "../utils/roles";
 
 export class RestaurantController extends DefaultController {
@@ -11,12 +11,14 @@ export class RestaurantController extends DefaultController {
         router.get('/getOne', express.json(), this.getOneRestaurant.bind(this))
         router.get('/getAll', this.getAllRestaurants.bind(this))
         router.delete('/deleteOne', express.json(), this.deleteRestaurant.bind(this))
+        router.patch('/updateAdmin', express.json(), this.updateAdmin.bind(this))
         return router
     }
 
     async createRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await this.verifyPermissions(req, Roles.BigBoss)
+            await verifyPermissions
+    (req, Roles.BigBoss)
             return await RestaurantService.getInstance().createRestaurant({
                 name: req.body.name,
                 address: req.body.address
@@ -26,29 +28,30 @@ export class RestaurantController extends DefaultController {
 
     async getOneRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await this.verifyPermissions(req, Roles.BigBoss)
+            await verifyPermissions
+    (req, Roles.BigBoss)
             return await RestaurantService.getInstance().getOneRestaurant(req.body.id)
-        })
-    }
-
-    async deleteRestaurant (req: Request, res: Response) {
-        await super.sendResponse(req, res, async () => {
-            await this.verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().deleteRestaurant(req.body.id)
         })
     }
 
     async getAllRestaurants (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await this.verifyPermissions(req, Roles.BigBoss)
+            await verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().getAllRestaurants()
         })
     }
 
-    async verifyPermissions (req: Request, requiredRole: Roles) {
-        const authToken = getAuthorization(req)
-        if (!await AuthService.getInstance().isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
-            throw new ErrorResponse("You don't have permissions !", 403)
-        }
+    async deleteRestaurant (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await verifyPermissions(req, Roles.BigBoss)
+            return await RestaurantService.getInstance().deleteRestaurant(req.body.id)
+        })
+    }
+
+    async updateAdmin (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await verifyPermissions(req, Roles.BigBoss)
+            return await RestaurantService.getInstance().updateAdmin(req.body.restaurant, req.body.admin)
+        })
     }
 }

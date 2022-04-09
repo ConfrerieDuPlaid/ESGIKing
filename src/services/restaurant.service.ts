@@ -1,5 +1,8 @@
-import {RestaurantDocument, RestaurantModel, RestaurantProps} from "../models";
+import {RestaurantDocument, RestaurantModel, RestaurantProps, UserDocument, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
+import {Roles} from "../utils/roles";
+import {Schema} from "mongoose";
+import {UserService} from "./user.service";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 
@@ -33,9 +36,11 @@ export class RestaurantService {
     }
 
     public async getOneRestaurant (restaurantID: string): Promise<RestaurantDocument | null> {
-        return await RestaurantModel.findOne({
-            _id: restaurantID
-        })
+        return await RestaurantModel.findById(restaurantID).exec();
+    }
+
+    public async getAllRestaurants (): Promise<RestaurantDocument[] | null> {
+        return await RestaurantModel.find()
     }
 
     public async deleteRestaurant (restaurantID: string): Promise<boolean> {
@@ -45,7 +50,27 @@ export class RestaurantService {
         return res.deletedCount === 1
     }
 
-    public async getAllRestaurants (): Promise<RestaurantDocument[] | null> {
-        return await RestaurantModel.find()
+    public async updateAdmin (restaurantID: string, adminID: string): Promise<boolean> {
+        const newAdmin: UserDocument = await UserModel.findById(adminID).exec()
+        const restaurant: RestaurantDocument = await RestaurantModel.findById(restaurantID).exec()
+        const previousAdmin: UserDocument = await UserModel.findById(restaurant.admin).exec()
+
+        if (newAdmin.role !== Roles.toString(Roles.Admin)) {
+            throw new ErrorResponse("This user is not an admin", 400)
+        }
+        if (await UserService.getInstance().userIsAssignedToRestaurant(adminID)) {
+            throw new ErrorResponse("This admin is already managing a restaurant", 400)
+        }
+
+        restaurant.admin = adminID
+        newAdmin.restaurant = restaurantID
+        if (previousAdmin !== null) {
+            previousAdmin.set("restaurant", null)
+            await previousAdmin.save()
+        }
+
+        await restaurant.save()
+        await newAdmin.save()
+        return true
     }
 }

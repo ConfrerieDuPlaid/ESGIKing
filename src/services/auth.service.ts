@@ -1,7 +1,6 @@
 import {UserDocument, UserModel, UserProps} from "../models";
-import {ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
+import {ErrorResponse, SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
-import {Request, RequestHandler} from "express";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">

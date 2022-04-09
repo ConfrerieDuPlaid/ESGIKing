@@ -1,5 +1,8 @@
 import * as crypto from "crypto"
 import {Request} from "express";
+import {Roles} from "./roles";
+import {AuthService} from "../services";
+import {ErrorResponse} from "./error.utils";
 
 export class SecurityUtils {
     public static sha512 (str: string): string {
@@ -18,4 +21,12 @@ export function getAuthorization (req: Request): string {
         authToken = authStr[1]
     }
     return authToken
+}
+
+
+export async function verifyPermissions (req: Request, requiredRole: Roles) {
+    const authToken = getAuthorization(req)
+    if (!await AuthService.getInstance().isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
+        throw new ErrorResponse("You don't have permissions !", 403)
+    }
 }
