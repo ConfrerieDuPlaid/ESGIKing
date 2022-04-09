@@ -1,6 +1,7 @@
 import {UserDocument, UserModel, UserProps} from "../models";
-import {ErrorResponse, SecurityUtils, DateUtils} from "../utils";
+import {ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models";
+import {Request, RequestHandler} from "express";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
@@ -18,8 +19,12 @@ export class AuthService {
 
     private constructor() { }
 
+    public async isValidRoleAndSession (token: string | null, expectedRole: string): Promise<boolean> {
+        return await this.isValidRole(token, expectedRole) && await this.isValidSession(token)
+    }
+
     public async isValidRole  (token: string | null, expectedRole: string): Promise<boolean> {
-        if (token === null || token === "" || !await this.isValidSession(token)) return false
+        if (token === null || token === "") return false
         const user = await UserModel.findOne({
             sessions: token
         })
@@ -39,7 +44,7 @@ export class AuthService {
             throw new ErrorResponse("Missing password !", 400)
         }
 
-        if (user.role === "Admin" && !await this.isValidRole(token, "BigBoss")) {
+        if (user.role === "Admin" && !await this.isValidRoleAndSession(token, "BigBoss")) {
             throw new ErrorResponse("You have to be logged in as a Big Boss to create an Admin", 403)
         }
 
