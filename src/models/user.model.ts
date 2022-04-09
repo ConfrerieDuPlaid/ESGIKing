@@ -1,4 +1,4 @@
-import mongoose, {Schema, Document} from "mongoose";
+import mongoose, {Document, Schema} from "mongoose";
 
 const userSchema = new Schema({
     login: {
@@ -22,8 +22,7 @@ const userSchema = new Schema({
     },
     restaurant: {
         type: Schema.Types.ObjectId,
-        ref: "Restaurant",
-        require: false
+        ref: "Restaurant"
     }
 
 }, {

@@ -1,8 +1,7 @@
 import {RestaurantDocument, RestaurantModel, RestaurantProps, UserDocument, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
-import {Roles} from "../utils/roles";
-import {Schema} from "mongoose";
-import {UserService} from "./user.service";
+import {Roles} from "../utils/roles"
+import {UserService} from "./user.service"
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 

@@ -1,12 +1,9 @@
 import {config} from "dotenv";
-config();
-
-
 import express from "express";
 import mongoose from "mongoose";
 import {AuthController} from "./controllers/"
-import {RestaurantController} from "./controllers/restaurant.controller";
-import {Roles} from "./utils/roles";
+import {RestaurantController} from "./controllers/"
+config()
 
 const controllerPaths = {
     "/auth": AuthController

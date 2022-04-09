@@ -17,8 +17,7 @@ export class RestaurantController extends DefaultController {
 
     async createRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions
-    (req, Roles.BigBoss)
+            await verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().createRestaurant({
                 name: req.body.name,
                 address: req.body.address
@@ -28,8 +27,7 @@ export class RestaurantController extends DefaultController {
 
     async getOneRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions
-    (req, Roles.BigBoss)
+            await verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().getOneRestaurant(req.body.id)
         })
     }

@@ -23,7 +23,6 @@ export function getAuthorization (req: Request): string {
     return authToken
 }
 
-
 export async function verifyPermissions (req: Request, requiredRole: Roles) {
     const authToken = getAuthorization(req)
     if (!await AuthService.getInstance().isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
