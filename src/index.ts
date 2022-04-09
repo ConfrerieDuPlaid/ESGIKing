@@ -6,10 +6,12 @@ import express from "express";
 import mongoose from "mongoose";
 import {AuthController} from "./controllers/"
 import {RestaurantController} from "./controllers/restaurant.controller";
+import {Roles} from "./utils/roles";
 
 const controllerPaths = {
     "/auth": AuthController
 }
+
 
 async function startServer (): Promise<void> {
     await mongoose.connect(process.env.MONGO_URI as string, {

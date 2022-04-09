@@ -11,6 +11,7 @@ export class SecurityUtils {
 
 export function getAuthorization (req: Request): string {
     let authBasic = req.headers.authorization
+    if (authBasic === null || authBasic === "") return ""
     let authToken = ""
     if (typeof authBasic === "string") {
         const authStr = authBasic.split(" ")

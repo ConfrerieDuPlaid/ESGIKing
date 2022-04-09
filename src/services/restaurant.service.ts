@@ -31,4 +31,11 @@ export class RestaurantService {
 
         return model.save()
     }
+
+    public async getOneRestaurant (restaurantID: string): Promise<RestaurantDocument | null> {
+        const restaurant = await RestaurantModel.findOne({
+            _id: restaurantID
+        })
+        return restaurant
+    }
 }
