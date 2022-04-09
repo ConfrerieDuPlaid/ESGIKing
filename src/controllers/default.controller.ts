@@ -9,7 +9,7 @@ export class DefaultController {
             res.status(200).end()
         } catch (e: unknown) {
             const err = e as ErrorResponse
-            // console.log(err.message)
+            console.log(err.message)
             res.status(err.status).end()
         }
     }

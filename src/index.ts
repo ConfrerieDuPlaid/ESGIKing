@@ -1,11 +1,35 @@
 import {config} from "dotenv";
 config();
 
+
 import express from "express";
+import mongoose from "mongoose";
+import {AuthController} from "./controllers/"
 
+const controllerPaths = {
+    "/auth": AuthController
+}
 
-const app = express();
+async function startServer (): Promise<void> {
+    await mongoose.connect(process.env.MONGO_URI as string, {
+        auth: {
+            username: process.env.MONGO_USER as string,
+            password: process.env.MONGO_PWD as string
+        }
+    })
 
-app.listen(process.env.PORT, function() {
-    console.log("Server listening on port " + process.env.PORT);
-});
+    const app = express()
+
+    app.get('/', function (req, res) {
+        res.send("Hello and welcome to ESGIKing !")
+    })
+
+    const authController = new AuthController()
+    app.use('/auth', authController.buildRoutes())
+
+    app.listen(process.env.PORT, () => {
+        console.log("Server listening on port " + process.env.PORT);
+    });
+}
+
+startServer().catch(console.error)
