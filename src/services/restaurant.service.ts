@@ -1,4 +1,4 @@
-import {RestaurantDocument, RestaurantModel, RestaurantProps, UserProps} from "../models";
+import {RestaurantDocument, RestaurantModel, RestaurantProps} from "../models";
 import {ErrorResponse} from "../utils";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
@@ -33,9 +33,12 @@ export class RestaurantService {
     }
 
     public async getOneRestaurant (restaurantID: string): Promise<RestaurantDocument | null> {
-        const restaurant = await RestaurantModel.findOne({
+        return await RestaurantModel.findOne({
             _id: restaurantID
         })
-        return restaurant
+    }
+
+    public async getAllRestaurants (): Promise<RestaurantDocument[] | null> {
+        return await RestaurantModel.find()
     }
 }

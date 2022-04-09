@@ -9,6 +9,7 @@ export class RestaurantController extends DefaultController {
         const router = express.Router()
         router.put('/add', express.json(), this.createRestaurant.bind(this))
         router.get('/getOne', express.json(), this.getOneRestaurant.bind(this))
+        router.get('/getAll', this.getAllRestaurants.bind(this))
         return router
     }
 
@@ -27,6 +28,13 @@ export class RestaurantController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             await this.verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().getOneRestaurant(req.body.id)
+        })
+    }
+
+    async getAllRestaurants (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await this.verifyPermissions(req, Roles.BigBoss)
+            return await RestaurantService.getInstance().getAllRestaurants()
         })
     }
 
