@@ -19,8 +19,11 @@ export class AuthService {
 
     public async isValidRole(token: string | null, expectedRole: string): Promise<boolean> {
         if (token === null || token === "") return false
+        const session = await SessionModel.findOne({
+            _id: token
+        })
         const user = await UserModel.findOne({
-            sessions: token
+            _id: session.user
         })
         return user.role === expectedRole
     }
@@ -33,7 +36,6 @@ export class AuthService {
         if (user.role === "Admin" && !await this.isValidRole(token, "BigBoss")) {
             throw new ErrorResponse("You have to be logged in as a Big Boss to create an Admin", 403)
         }
-
         let userData = {
             login: user.login,
             password: SecurityUtils.sha512(user.password),

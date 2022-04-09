@@ -3,6 +3,13 @@ import {AuthService} from "../services";
 import {DefaultController} from "./default.controller";
 
 export class AuthController extends DefaultController {
+    buildRoutes (): Router {
+        const router = express.Router()
+        router.post('/subscribe', express.json(), this.createUser)
+        router.post('/login', express.json(), this.logUser)
+        return router
+    }
+
     async createUser (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             let authBasic = req.headers.authorization
@@ -27,13 +34,6 @@ export class AuthController extends DefaultController {
                 password: req.body.password
             }, platform)
         })
-    }
-
-    buildRoutes (): Router {
-        const router = express.Router()
-        router.post('/subscribe', express.json(), this.createUser)
-        router.post('/login', express.json(), this.logUser)
-        return router
     }
 
 }

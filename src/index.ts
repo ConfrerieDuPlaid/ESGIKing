@@ -4,7 +4,7 @@ config();
 
 import express from "express";
 import mongoose from "mongoose";
-import {AuthController} from "./controllers";
+import {AuthController} from "./controllers/"
 
 const controllerPaths = {
     "/auth": AuthController
@@ -24,18 +24,12 @@ async function startServer (): Promise<void> {
         res.send("Hello and welcome to ESGIKing !")
     })
 
-    // let controller = null
-    // for (let path in controllerPaths) {
-    //     controller = new controllerPaths.valueOf(path)()
-    // }
-
-    // const coffeeController = new CoffeeController()
-    // app.use('/coffee', coffeeController.buildRoutes())
-
     const authController = new AuthController()
     app.use('/auth', authController.buildRoutes())
 
-    app.listen(process.env.PORT)
+    app.listen(process.env.PORT, () => {
+        console.log("Server listening on port " + process.env.PORT);
+    });
 }
 
 startServer().catch(console.error)
