@@ -51,10 +51,7 @@ export class RestaurantService {
     }
 
     public async updateAdmin (restaurantID: string, adminID: string): Promise<boolean> {
-        const newAdmin: UserDocument = await UserModel.findById(adminID).exec()
-        if (newAdmin === null) {
-            throw new ErrorResponse("This user doesn't exist", 404)
-        }
+        const newAdmin: UserDocument = await UserService.getInstance().getUser(adminID)
         if (newAdmin.role !== Roles.toString(Roles.Admin)) {
             throw new ErrorResponse("This user is not an admin", 400)
         }
@@ -67,24 +64,41 @@ export class RestaurantService {
             throw new ErrorResponse("This restaurant doesn't exist", 404)
         }
 
-        const previousAdmin: StaffDocument = await StaffModel.findOne({
-            restaurantID: restaurantID,
-            role: "Admin"
-        }).exec()
-
-        if (previousAdmin !== null) {
-            await previousAdmin.delete()
-        }
-
-        restaurant.admin = adminID
-        await restaurant.save()
-
-        const newStaff: StaffDocument = new StaffModel({
+        await this.removeAdmin(restaurantID)
+        const newStaff = new StaffModel({
             staffID: adminID,
             restaurantID: restaurantID,
             role: "Admin"
         })
+        console.log(newStaff)
         await newStaff.save()
+        console.log("Back")
+
+        restaurant.admin = adminID
+        await restaurant.save()
+
         return true
+    }
+
+    public async removeAdmin (restaurantID: string): Promise<boolean> {
+        const previousAdmin: StaffDocument = await StaffModel.findOne({
+            restaurantID: restaurantID,
+            role: "Admin"
+        }).exec()
+        if (previousAdmin !== null) {
+            await previousAdmin.delete()
+        }
+        return true
+    }
+
+    public async addStaff (restaurantID: string, userID: string, role: string = "OrderPicker"): Promise<StaffDocument> {
+        console.log(restaurantID, userID, role)
+        const newStaff = new StaffModel({
+            staffID: userID,
+            restaurantID: restaurantID,
+            role: role
+        })
+        console.log(newStaff)
+        return newStaff.save()
     }
 }
