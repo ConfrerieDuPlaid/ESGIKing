@@ -51,10 +51,7 @@ export class RestaurantService {
     }
 
     public async updateAdmin (restaurantID: string, adminID: string): Promise<boolean> {
-        const newAdmin: UserDocument = await UserModel.findById(adminID).exec()
-        if (newAdmin === null) {
-            throw new ErrorResponse("This user doesn't exist", 404)
-        }
+        const newAdmin: UserDocument = await UserService.getInstance().getUser(adminID)
         if (newAdmin.role !== Roles.toString(Roles.Admin)) {
             throw new ErrorResponse("This user is not an admin", 400)
         }
@@ -67,24 +64,32 @@ export class RestaurantService {
             throw new ErrorResponse("This restaurant doesn't exist", 404)
         }
 
-        const previousAdmin: StaffDocument = await StaffModel.findOne({
-            restaurantID: restaurantID,
-            role: "Admin"
-        }).exec()
-
-        if (previousAdmin !== null) {
-            await previousAdmin.delete()
-        }
+        await this.removeAdmin(restaurantID)
+        await this.addStaff(restaurantID, adminID, "Admin")
 
         restaurant.admin = adminID
         await restaurant.save()
 
-        const newStaff: StaffDocument = new StaffModel({
-            staffID: adminID,
+        return true
+    }
+
+    public async removeAdmin (restaurantID: string): Promise<boolean> {
+        const previousAdmin: StaffDocument = await StaffModel.findOne({
             restaurantID: restaurantID,
             role: "Admin"
-        })
-        await newStaff.save()
+        }).exec()
+        if (previousAdmin !== null) {
+            await previousAdmin.delete()
+        }
         return true
+    }
+
+    public async addStaff (restaurantID: string, userID: string, role: string = "OrderPicker"): Promise<StaffDocument> {
+        const newStaff = new StaffModel({
+            staffID: userID,
+            restaurantID: restaurantID,
+            role: role
+        })
+        return newStaff.save()
     }
 }

@@ -4,7 +4,6 @@ const staffSchema = new Schema({
     staffID: {
         type: Schema.Types.ObjectId,
         required: true,
-        unique: true,
         ref: "User"
     },
     restaurantID: {
@@ -26,11 +25,9 @@ const staffSchema = new Schema({
 
 export interface StaffProps {
     _id: string
-    login: string
-    password: string
-    sessions: string[]
+    staffID: string
+    restaurantID: string
     role: string
-    restaurant: string
 }
 
 export type StaffDocument = StaffProps & Document
