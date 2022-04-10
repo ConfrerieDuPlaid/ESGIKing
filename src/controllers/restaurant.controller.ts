@@ -22,7 +22,7 @@ export class RestaurantController extends DefaultController {
                 name: req.body.name,
                 address: req.body.address
             })
-        })
+        }, 201)
     }
 
     async getOneRestaurant (req: Request, res: Response) {
@@ -43,13 +43,13 @@ export class RestaurantController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().deleteRestaurant(req.body.id)
-        })
+        }, 204)
     }
 
     async updateAdmin (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().updateAdmin(req.body.restaurant, req.body.admin)
-        })
+        }, 204)
     }
 }

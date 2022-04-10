@@ -19,7 +19,7 @@ export class AuthController extends DefaultController {
                 password: req.body.password,
                 role: req.body.role !== null ? req.body.role : null
             }, authToken)
-        })
+        }, 201)
     }
 
     async logUser (req: Request, res: Response) {

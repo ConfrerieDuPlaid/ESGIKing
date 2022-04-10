@@ -19,11 +19,11 @@ export class AuthService {
     private constructor() { }
 
     public async isValidRoleAndSession (token: string | null, expectedRole: string): Promise<boolean> {
-        return await this.isValidRole(token, expectedRole) && await this.isValidSession(token)
+        return await this.isValidSession(token) && await this.isValidRole(token, expectedRole)
     }
 
     public async isValidRole  (token: string | null, expectedRole: string): Promise<boolean> {
-        if (token === null || token === "") return false
+        if (!(!!token)) return false
         const user = await UserModel.findOne({
             sessions: token
         })
@@ -31,10 +31,8 @@ export class AuthService {
     }
 
     public async isValidSession (token: string | null): Promise<boolean> {
-        if (token === null || token === "") return false
-        const session = await SessionModel.findOne({
-            _id: token
-        })
+        if (!(!!token)) return false
+        const session = await SessionModel.findById(token).exec()
         return session.expiration > new Date()
     }
 
