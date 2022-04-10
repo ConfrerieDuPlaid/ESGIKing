@@ -31,4 +31,10 @@ export class ReductionService{
     async getReductionById(reductionId: string) {
         return await ReductionModel.findById(reductionId);
     }
+
+    async deleteReduction(reductionId: any) {
+        await ReductionModel.deleteOne({
+            _id: reductionId
+        })
+    }
 }
