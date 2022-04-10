@@ -10,18 +10,24 @@ export class ReductionController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
         router.put('/', express.json(), this.createReduction.bind(this))
+        router.get('/', express.json(), this.getAllReduction.bind(this))
         return router
     }
 
 
     async createReduction(req : Request, res: Response) {
-
         await super.sendResponse(req, res, async () => {
             await this.reductionService.createReduction({
                     name: req.body.name,
                     amount: +req.body.amount
                 }
             );
+        }, 201);
+    }
+
+    async getAllReduction(req : Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            return await this.reductionService.getAllReduction();
         }, 201);
     }
 }

@@ -23,4 +23,8 @@ export class ReductionService{
         })
         newReductionModel.save();
     }
+
+    async getAllReduction() {
+        return await ReductionModel.find();
+    }
 }
