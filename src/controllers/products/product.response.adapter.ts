@@ -1,4 +1,4 @@
-import {Product} from "../domain/product";
+import {Product} from "../../services/products/domain/product";
 
 export class ProductResponseAdapter {
     static adapt(product: Product) {

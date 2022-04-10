@@ -1,5 +1,5 @@
-import {ProductRepository} from "../domain/product.repository";
-import {Product} from "../domain/product";
+import {ProductRepository} from "../../services/products/domain/product.repository";
+import {Product} from "../../services/products/domain/product";
 import {ProductDocument, ProductModel} from "./mongoose.product.model";
 import {ProductAdapter} from "./product.adapter";
 
