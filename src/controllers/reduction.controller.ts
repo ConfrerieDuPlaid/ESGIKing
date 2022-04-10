@@ -13,6 +13,7 @@ export class ReductionController extends DefaultController{
         router.get('/', express.json(), this.getAllReduction.bind(this))
         router.get('/:reductionId', express.json(), this.getReductionById.bind(this))
         router.delete('/:reductionId', express.json(), this.deleteReduction.bind(this))
+        router.patch('/:reductionId', express.json(), this.updateReduction.bind(this))
         return router
     }
 
@@ -42,6 +43,12 @@ export class ReductionController extends DefaultController{
     async deleteReduction(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             return await this.reductionService.deleteReduction(req.params.reductionId);;
+        }, 204);
+    }
+
+    async updateReduction(req: Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            return await this.reductionService.updateReduction(req.params.reductionId, req.body);
         }, 204);
     }
 }

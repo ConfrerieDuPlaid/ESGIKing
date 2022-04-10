@@ -29,12 +29,26 @@ export class ReductionService{
     }
 
     async getReductionById(reductionId: string) {
-        return await ReductionModel.findById(reductionId);
+        return await ReductionModel.findById(reductionId).exec();
     }
 
     async deleteReduction(reductionId: any) {
         await ReductionModel.deleteOne({
             _id: reductionId
         })
+    }
+
+    async updateReduction(reductionId: string, reductionBody: Partial<ReductionProps>) {
+        const reduction = await this.getReductionById(reductionId)
+        if(!reduction){
+            throw new ErrorResponse("Wrong ID of reduction", 400)
+        }
+        if(reductionBody.name){
+            reduction.name = reductionBody.name
+        }
+        if(reductionBody.amount){
+            reduction.amount = reductionBody.amount
+        }
+        reduction.save()
     }
 }
