@@ -5,19 +5,11 @@ const restaurantSchema = new Schema({
         type: Schema.Types.String,
         required: true
     },
-    admin: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    },
     address: {
         type: Schema.Types.String,
         required: true,
         unique: true
-    },
-    employees: [{
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    }]
+    }
     //Menus
 }, {
     collection: "restaurants",
@@ -28,9 +20,7 @@ const restaurantSchema = new Schema({
 export interface RestaurantProps {
     _id: string
     name: string
-    admin: string
     address: string
-    employees: string[]
 }
 
 export type RestaurantDocument = RestaurantProps & Document

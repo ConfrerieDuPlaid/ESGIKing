@@ -7,6 +7,8 @@ import {StaffService} from "../services";
 export class StaffController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
+        router.get('/:ressourceID', this.getEmployee.bind(this))
+        router.get('/', this.getAllEmployees.bind(this))
         router.put('/', express.json(), this.addEmployee.bind(this))
         router.delete('/', express.json(), this.removeEmployee.bind(this))
         return router
@@ -24,5 +26,22 @@ export class StaffController extends DefaultController{
             await verifyPermissions(req, Roles.BigBoss)
             return StaffService.getInstance().deleteStaff(req.body)
         }, 204)
+    }
+
+    async getAllEmployees (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            return StaffService.getInstance().getAllStaff()
+        })
+    }
+
+    async getEmployee (req: Request, res: Response) {
+        let ressourceType = ""
+        if (!!req.query.ressource) {
+            if (req.query.ressource === "restaurant") ressourceType = "restaurant"
+            else if (req.query.ressource === "staff") ressourceType = "staff"
+        }
+        await super.sendResponse(req, res, async () => {
+            return StaffService.getInstance().getStaff(req.params.ressourceID, ressourceType)
+        })
     }
 }

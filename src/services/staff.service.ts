@@ -2,6 +2,7 @@ import {RestaurantDocument, RestaurantModel, StaffDocument, StaffModel, StaffPro
 import {UserService} from "./user.service";
 import {Roles} from "../utils/roles";
 import {ErrorResponse} from "../utils";
+import {query} from "express";
 
 type StaffPartial = Partial<StaffProps>
 
@@ -73,5 +74,20 @@ export class StaffService {
         }).exec()
         if (!(!!staff)) return false
         return !!staff.restaurantID
+    }
+
+    public async getStaff (ressourceID: string, ressourceType: string): Promise<StaffDocument[]> {
+        const orProperties = []
+        if (ressourceType === "restaurant" || ressourceType === "") {
+            orProperties.push({restaurantID: ressourceID})
+        }
+        if (ressourceType === "staff" || ressourceType === "") {
+            orProperties.push({staffID: ressourceID})
+        }
+        return await StaffModel.find({$or: orProperties}).exec()
+    }
+
+    public async getAllStaff (): Promise<StaffDocument[] | null> {
+        return await StaffModel.find()
     }
 }
