@@ -4,13 +4,7 @@ config();
 
 import express from "express";
 import mongoose from "mongoose";
-import {AuthController} from "./controllers/"
-import {ProductsController} from "./usecases/products/exposition/products.controller";
-
-const controllerPaths = {
-    "/auth": AuthController,
-    "/products": ProductsController
-}
+import {AuthController, ProductsController} from "./controllers/"
 
 async function startServer (): Promise<void> {
     await mongoose.connect(process.env.MONGO_URI as string, {

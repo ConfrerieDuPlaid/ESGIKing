@@ -1,7 +1,7 @@
-import {Product, ProductProps, ProductWithoutId} from "../domain/product";
-import {ProductRepository} from "../domain/product.repository";
-import {ProductModule} from "../product.module";
-import {ErrorResponse} from "../../../utils";
+import {Product, ProductProps, ProductWithoutId} from "./domain/product";
+import {ProductRepository} from "./domain/product.repository";
+import {ProductModule} from "./product.module";
+import {ErrorResponse} from "../../utils";
 
 export class ProductsService {
     private static instance: ProductsService;

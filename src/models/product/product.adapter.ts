@@ -1,6 +1,6 @@
 import {ProductDocument} from "./mongoose.product.model";
-import {Product} from "../domain/product";
-import {ProductId} from "../domain/product.id";
+import {Product} from "../../services/products/domain/product";
+import {ProductId} from "../../services/products/domain/product.id";
 
 export class ProductAdapter {
     static adapt(source: ProductDocument): Product {
