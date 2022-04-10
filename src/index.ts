@@ -1,7 +1,7 @@
 import {config} from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import {AuthController} from "./controllers/"
+import {AuthController, StaffController} from "./controllers/"
 import {RestaurantController} from "./controllers/"
 config()
 
@@ -27,8 +27,10 @@ async function startServer (): Promise<void> {
     //Voir si on pourra automatiser les loads
     const authController = new AuthController()
     const restaurantController = new RestaurantController()
+    const staffController = new StaffController()
     app.use('/auth', authController.buildRoutes())
     app.use('/restaurant', restaurantController.buildRoutes())
+    app.use('/staff', staffController.buildRoutes())
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);

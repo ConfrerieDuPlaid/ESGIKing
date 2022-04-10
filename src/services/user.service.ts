@@ -1,5 +1,6 @@
 import {UserDocument, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
+import {Roles} from "../utils/roles";
 
 export class UserService {
 
@@ -15,16 +16,22 @@ export class UserService {
     private constructor() {
     }
 
-    public async userIsAssignedToRestaurant (userID: string): Promise<boolean> {
-        const user = await UserModel.findById(userID).exec()
-        return !!user.restaurant
-    }
-
-    public async getUser (userID: string): Promise<UserDocument> {
+    public async getUser(userID: string | undefined): Promise<UserDocument> {
         const user = await UserModel.findById(userID).exec()
         if (user === null) {
             throw new ErrorResponse("This user doesn't exist", 404)
         }
         return user
     }
+
+    public async getUserProp(userID: string | undefined, propName: string): Promise<any> {
+        const user: UserDocument = await this.getUser(userID)
+        return user.get(propName)
+    }
+
+    public async validUserRole (userID: string | undefined, validRoles: string[]): Promise<boolean> {
+        const user: UserDocument = await this.getUser(userID)
+        return user.role.toString() in validRoles
+    }
+
 }

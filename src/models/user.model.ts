@@ -19,10 +19,6 @@ const userSchema = new Schema({
         enum: ["BigBoss", "Admin", "Customer", "OrderPicker", "DeliveryMan"],
         default: "Customer",
         required: true
-    },
-    restaurant: {
-        type: Schema.Types.ObjectId,
-        ref: "Restaurant"
     }
 
 }, {

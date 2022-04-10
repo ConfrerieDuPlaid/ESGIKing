@@ -7,11 +7,11 @@ import {Roles} from "../utils/roles";
 export class RestaurantController extends DefaultController {
     buildRoutes (): Router {
         const router = express.Router()
-        router.put('/add', express.json(), this.createRestaurant.bind(this))
-        router.get('/getOne', express.json(), this.getOneRestaurant.bind(this))
-        router.get('/getAll', this.getAllRestaurants.bind(this))
-        router.delete('/deleteOne', express.json(), this.deleteRestaurant.bind(this))
-        router.patch('/updateAdmin', express.json(), this.updateAdmin.bind(this))
+        router.put('/', express.json(), this.createRestaurant.bind(this))
+        router.get('/:restaurantID', this.getOneRestaurant.bind(this))
+        router.get('/', this.getAllRestaurants.bind(this))
+        router.delete('/:restaurantID', this.deleteRestaurant.bind(this))
+        router.patch('/:restaurantID', express.json(), this.updateRestaurant.bind(this))
         return router
     }
 
@@ -28,7 +28,7 @@ export class RestaurantController extends DefaultController {
     async getOneRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().getOneRestaurant(req.body.id)
+            return await RestaurantService.getInstance().getOneRestaurant(req.params.restaurantID)
         })
     }
 
@@ -42,14 +42,14 @@ export class RestaurantController extends DefaultController {
     async deleteRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().deleteRestaurant(req.body.id)
+            return await RestaurantService.getInstance().deleteRestaurant(req.params.restaurantID)
         }, 204)
     }
 
-    async updateAdmin (req: Request, res: Response) {
+    async updateRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().updateAdmin(req.body.restaurant, req.body.admin)
+            return await RestaurantService.getInstance().updateRestaurant(req.params.restaurantID, req.body)
         }, 204)
     }
 }

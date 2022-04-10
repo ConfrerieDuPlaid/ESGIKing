@@ -4,7 +4,8 @@ const staffSchema = new Schema({
     staffID: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: "User"
+        ref: "User",
+        unique: true
     },
     restaurantID: {
         type: Schema.Types.ObjectId,
