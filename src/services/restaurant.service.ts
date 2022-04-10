@@ -52,9 +52,12 @@ export class RestaurantService {
     }
 
     public async updateRestaurant (restaurantID: string, restaurantData: RestaurantPartial): Promise<boolean> {
-        let res = true
-        //to do : update name (& menu ?)
-        return res
+        const restaurant: RestaurantDocument = await RestaurantModel.findById(restaurantID).exec()
+        if (restaurant === null) return false
+        if (!!restaurantData.name) restaurant.name = restaurantData.name
+        if (!!restaurantData.address) restaurant.address = restaurantData.address
+        await restaurant.save()
+        return true
     }
 
 

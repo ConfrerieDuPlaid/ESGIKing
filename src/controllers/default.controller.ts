@@ -10,7 +10,7 @@ export class DefaultController {
         } catch (e: unknown) {
             const err = e as ErrorResponse
             console.log(err.message)
-            if (err.status === undefined) err.status = 500
+            if (err.status === undefined) err.status = 400
             res.status(err.status).end()
         }
     }
