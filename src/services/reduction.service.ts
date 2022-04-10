@@ -27,4 +27,8 @@ export class ReductionService{
     async getAllReduction() {
         return await ReductionModel.find();
     }
+
+    async getReductionById(reductionId: string) {
+        return await ReductionModel.findById(reductionId);
+    }
 }

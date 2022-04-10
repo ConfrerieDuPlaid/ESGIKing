@@ -11,6 +11,7 @@ export class ReductionController extends DefaultController{
         const router = express.Router()
         router.put('/', express.json(), this.createReduction.bind(this))
         router.get('/', express.json(), this.getAllReduction.bind(this))
+        router.get('/:reductionId', express.json(), this.getReductionById.bind(this))
         return router
     }
 
@@ -28,6 +29,12 @@ export class ReductionController extends DefaultController{
     async getAllReduction(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             return await this.reductionService.getAllReduction();
+        }, 201);
+    }
+
+    async getReductionById(req : Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            return await this.reductionService.getReductionById(req.params.reductionId);
         }, 201);
     }
 }
