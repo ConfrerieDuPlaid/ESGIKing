@@ -1,7 +1,5 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
-import {Product} from "../services/products/domain/product";
-import {ProductResponseAdapter} from "./products/product.response.adapter";
 import {ReductionService} from "../services/reduction.service";
 
 export class ReductionController extends DefaultController{
@@ -11,12 +9,19 @@ export class ReductionController extends DefaultController{
 
     buildRoutes (): Router {
         const router = express.Router()
-        router.put('/', express.json(), this.createReduction)
+        router.put('/', express.json(), this.createReduction.bind(this))
         return router
     }
 
 
     async createReduction(req : Request, res: Response) {
-        throw new Error("not implemented")
+
+        await super.sendResponse(req, res, async () => {
+            await this.reductionService.createReduction({
+                    name: req.body.name,
+                    amount: +req.body.amount
+                }
+            );
+        }, 201);
     }
 }

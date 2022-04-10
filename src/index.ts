@@ -5,6 +5,7 @@ config();
 import express from "express";
 import mongoose from "mongoose";
 import {AuthController, ProductsController} from "./controllers/"
+import {ReductionController} from "./controllers/reduction.controller";
 
 async function startServer (): Promise<void> {
     await mongoose.connect(process.env.MONGO_URI as string, {
@@ -25,6 +26,10 @@ async function startServer (): Promise<void> {
 
     const productsController = new ProductsController();
     app.use('/products', productsController.buildRoutes());
+
+    const reductionController = new ReductionController()
+    app.use('/reduction', reductionController.buildRoutes());
+
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);
