@@ -31,7 +31,7 @@ export class UserService {
 
     public async validUserRole (userID: string | undefined, validRoles: string[]): Promise<boolean> {
         const user: UserDocument = await this.getUser(userID)
-        return user.role.toString() in validRoles
+        return validRoles.indexOf(user.role.toString()) !== -1
     }
 
 }

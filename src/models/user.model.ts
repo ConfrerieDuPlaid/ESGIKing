@@ -33,7 +33,6 @@ export interface UserProps {
     password: string
     sessions: string[]
     role: string
-    restaurant: string
 }
 
 export type UserDocument = UserProps & Document

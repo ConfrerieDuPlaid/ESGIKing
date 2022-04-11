@@ -1,8 +1,8 @@
-import {RestaurantDocument, RestaurantModel, StaffDocument, StaffModel, StaffProps} from "../models";
+import {RestaurantDocument, StaffDocument, StaffModel, StaffProps} from "../models";
 import {UserService} from "./user.service";
 import {Roles} from "../utils/roles";
 import {ErrorResponse} from "../utils";
-import {query} from "express";
+import {RestaurantService} from "../services";
 
 type StaffPartial = Partial<StaffProps>
 
@@ -25,35 +25,39 @@ export class StaffService {
             role: "Admin"
         }).exec()
         if (previousAdmin !== null) {
-            await previousAdmin.delete()
+            const res = await previousAdmin.delete()
+            return res.deletedCount !== 0
         }
         return true
     }
 
     public async addStaff (staffProps: StaffPartial): Promise<StaffDocument> {
-        const restaurant: RestaurantDocument = await RestaurantModel.findById(staffProps.restaurantID).exec()
+        const restaurant: RestaurantDocument | null = await RestaurantService.getInstance().getOneRestaurant(staffProps.restaurantID!)
         if (restaurant === null) {
             throw new ErrorResponse("This restaurant doesn't exist", 404)
         }
-        if (await this.userIsAssignedToRestaurant(staffProps.staffID)) {
+        if (await this.userIsAssignedToRestaurant(staffProps.userID)) {
             throw new ErrorResponse("This user is already assigned to a restaurant", 409)
         }
 
         if (!await UserService.getInstance().validUserRole(
-            staffProps.staffID,
+            staffProps.userID,
             [Roles.toString(Roles.Admin), Roles.toString(Roles.OrderPicker)])) {
             throw new ErrorResponse("Invalid user role", 400)
         }
         if (!!staffProps.role) {
             if (staffProps.role === "Admin") {
-                if (await UserService.getInstance().getUserProp(staffProps.staffID, "role") !== Roles.toString(Roles.Admin)) {
+                const isAdmin: boolean = await UserService.getInstance().getUserProp(staffProps.userID, "role") === Roles.toString(Roles.Admin)
+                if (!isAdmin) {
                     throw new ErrorResponse("This user is not an admin", 400)
                 }
-                await this.removeAdmin(staffProps.restaurantID)
+                if (!await this.removeAdmin(staffProps.restaurantID)) {
+                    throw new ErrorResponse("An error has occurred removing the previous admin", 500)
+                }
             }
         }
         const newStaff = new StaffModel({
-            staffID: staffProps.staffID,
+            userID: staffProps.userID,
             restaurantID: staffProps.restaurantID,
             role: !!staffProps.role ? staffProps.role : "OrderPicker"
         })
@@ -63,16 +67,16 @@ export class StaffService {
     public async deleteStaff (staffProps: StaffPartial): Promise<boolean> {
         const res = await StaffModel.deleteOne({
             restaurantID: staffProps.restaurantID,
-            staffID: staffProps.staffID
+            userID: staffProps.userID
         }).exec()
-        return res.deletedCount === 1
+        return res.deletedCount !== 0
     }
 
     public async userIsAssignedToRestaurant (userID: string | undefined): Promise<boolean> {
         const staff = await StaffModel.findOne({
-            staffID: userID
+            userID: userID
         }).exec()
-        if (!(!!staff)) return false
+        if (!staff) return false
         return !!staff.restaurantID
     }
 
@@ -82,7 +86,7 @@ export class StaffService {
             orProperties.push({restaurantID: ressourceID})
         }
         if (ressourceType === "staff" || ressourceType === "") {
-            orProperties.push({staffID: ressourceID})
+            orProperties.push({userID: ressourceID})
         }
         return await StaffModel.find({$or: orProperties}).exec()
     }

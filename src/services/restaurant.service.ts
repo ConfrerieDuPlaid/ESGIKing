@@ -32,7 +32,6 @@ export class RestaurantService {
             name: restaurant.name,
             address: restaurant.address
         })
-
         return model.save()
     }
 
@@ -56,8 +55,7 @@ export class RestaurantService {
         if (restaurant === null) return false
         if (!!restaurantData.name) restaurant.name = restaurantData.name
         if (!!restaurantData.address) restaurant.address = restaurantData.address
-        await restaurant.save()
-        return true
+        return await restaurant.save() !== null
     }
 
 

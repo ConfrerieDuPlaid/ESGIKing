@@ -1,7 +1,7 @@
 import mongoose, {Document, Schema} from "mongoose";
 
 const staffSchema = new Schema({
-    staffID: {
+    userID: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: "User",
@@ -26,7 +26,7 @@ const staffSchema = new Schema({
 
 export interface StaffProps {
     _id: string
-    staffID: string
+    userID: string
     restaurantID: string
     role: string
 }

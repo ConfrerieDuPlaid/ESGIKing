@@ -23,7 +23,7 @@ export class AuthService {
     }
 
     public async isValidRole  (token: string | null, expectedRole: string): Promise<boolean> {
-        if (!(!!token)) return false
+        if (!token) return false
         const user = await UserModel.findOne({
             sessions: token
         })
@@ -31,7 +31,7 @@ export class AuthService {
     }
 
     public async isValidSession (token: string | null): Promise<boolean> {
-        if (!(!!token)) return false
+        if (!token) return false
         const session = await SessionModel.findById(token).exec()
         return session.expiration > new Date()
     }

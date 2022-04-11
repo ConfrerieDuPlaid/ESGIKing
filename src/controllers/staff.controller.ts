@@ -1,6 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {DefaultController} from "./default.controller";
-import {verifyPermissions} from "../utils";
+import {ErrorResponse, verifyPermissions} from "../utils";
 import {Roles} from "../utils/roles";
 import {StaffService} from "../services";
 
@@ -24,7 +24,11 @@ export class StaffController extends DefaultController{
     async removeEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return StaffService.getInstance().deleteStaff(req.body)
+            const res: boolean = await StaffService.getInstance().deleteStaff(req.body)
+            if (!res) {
+                throw new ErrorResponse("An error occurred", 500)
+            }
+            return res
         }, 204)
     }
 

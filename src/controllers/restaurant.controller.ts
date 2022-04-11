@@ -1,7 +1,7 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
 import {RestaurantService} from "../services";
-import {verifyPermissions} from "../utils";
+import {ErrorResponse, verifyPermissions} from "../utils";
 import {Roles} from "../utils/roles";
 
 export class RestaurantController extends DefaultController {
@@ -42,14 +42,22 @@ export class RestaurantController extends DefaultController {
     async deleteRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().deleteRestaurant(req.params.restaurantID)
+            const res: boolean = await RestaurantService.getInstance().deleteRestaurant(req.params.restaurantID)
+            if (!res) {
+                throw new ErrorResponse("An error occurred", 500)
+            }
+            return res
         }, 204)
     }
 
     async updateRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await verifyPermissions(req, Roles.BigBoss)
-            return await RestaurantService.getInstance().updateRestaurant(req.params.restaurantID, req.body)
+            const res: boolean = await RestaurantService.getInstance().updateRestaurant(req.params.restaurantID, req.body)
+            if (!res) {
+                throw new ErrorResponse("An error occurred", 500)
+            }
+            return res
         }, 204)
     }
 }
