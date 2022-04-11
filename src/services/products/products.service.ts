@@ -24,7 +24,8 @@ export class ProductsService {
         }
         const product: Product = Product.withoutId({
             name: dto.name,
-            price: dto.price
+            price: dto.price,
+            reduction: dto.reduction
         })
         return await this.repository.create(product)
     }

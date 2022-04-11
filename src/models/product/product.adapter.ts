@@ -7,7 +7,8 @@ export class ProductAdapter {
         return new Product({
             id: new ProductId(source._id),
             name: source.name,
-            price: +source.price
+            price: +source.price,
+            reduction: source.reduction!
         })
     }
 }

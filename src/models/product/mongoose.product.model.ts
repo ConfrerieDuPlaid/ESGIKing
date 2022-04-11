@@ -10,6 +10,11 @@ const productSchema = new Schema({
     price: {
         type: Schema.Types.Number,
         required: true
+    },
+    reduction: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "Reduction"
     }
 }, {
     collection: 'products',
@@ -21,6 +26,7 @@ export interface MongooseProductProps {
     _id: string;
     name: string;
     price: number;
+    reduction?: string;
 }
 
 export type ProductDocument = MongooseProductProps & Document;

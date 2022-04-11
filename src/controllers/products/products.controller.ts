@@ -26,7 +26,8 @@ export class ProductsController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const product: Product = await this.productService.createProduct({
                 name: req.body.name,
-                price: +req.body.price
+                price: +req.body.price,
+                reduction: req.body.reduction
             });
             return ProductResponseAdapter.adapt(product);
         }, 201);
