@@ -1,4 +1,4 @@
-import {ReductionDocument, ReductionModel, ReductionProps} from "../models/reduction.model";
+import {ReductionModel, ReductionProps} from "../models/reduction.model";
 import {ErrorResponse} from "../utils";
 
 export class ReductionService{

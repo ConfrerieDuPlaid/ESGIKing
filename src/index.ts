@@ -1,11 +1,11 @@
 import {config} from "dotenv";
-config();
-
-
 import express from "express";
 import mongoose from "mongoose";
 import {AuthController, ProductsController} from "./controllers/"
 import {ReductionController} from "./controllers/reduction.controller";
+
+config();
+
 
 async function startServer (): Promise<void> {
     await mongoose.connect(process.env.MONGO_URI as string, {

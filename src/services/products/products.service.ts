@@ -1,4 +1,4 @@
-import {Product, ProductProps, ProductWithoutId} from "./domain/product";
+import {Product, ProductWithoutId} from "./domain/product";
 import {ProductRepository} from "./domain/product.repository";
 import {ProductModule} from "./product.module";
 import {ErrorResponse} from "../../utils";

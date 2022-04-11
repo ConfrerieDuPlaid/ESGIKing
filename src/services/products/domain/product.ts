@@ -1,7 +1,6 @@
 import {ProductId} from "./product.id";
 
 
-
 export class Product implements ProductProps{
     readonly id: ProductId;
     readonly name: string;

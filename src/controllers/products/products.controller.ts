@@ -2,7 +2,7 @@ import {DefaultController} from "../index";
 import express, {Request, Response, Router} from "express";
 import {ProductsService} from "../../services/products/products.service";
 import {ProductResponseAdapter} from "./product.response.adapter";
-import { Product } from "../../services/products/domain/product";
+import {Product} from "../../services/products/domain/product";
 
 export class ProductsController extends DefaultController {
     private readonly productService: ProductsService = ProductsService.getInstance();
