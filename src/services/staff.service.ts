@@ -80,15 +80,16 @@ export class StaffService {
         return !!staff.restaurantID
     }
 
-    public async getStaff (ressourceID: string, ressourceType: string): Promise<StaffDocument[]> {
-        const orProperties = []
-        if (ressourceType === "restaurant" || ressourceType === "") {
-            orProperties.push({restaurantID: ressourceID})
-        }
-        if (ressourceType === "staff" || ressourceType === "") {
-            orProperties.push({userID: ressourceID})
-        }
-        return await StaffModel.find({$or: orProperties}).exec()
+    public async getStaffByRestaurant (restaurantID: string): Promise<StaffDocument[]> {
+        return await StaffModel.find({
+            restaurantID: restaurantID
+        }).exec()
+    }
+
+    public async getStaffByUser (userID: string): Promise<StaffDocument> {
+        return await StaffModel.findOne({
+            userID: userID
+        }).exec()
     }
 
     public async getAllStaff (): Promise<StaffDocument[] | null> {

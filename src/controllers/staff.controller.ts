@@ -39,13 +39,14 @@ export class StaffController extends DefaultController{
     }
 
     async getEmployee (req: Request, res: Response) {
-        let ressourceType = ""
-        if (!!req.query.ressource) {
-            if (req.query.ressource === "restaurant") ressourceType = "restaurant"
-            else if (req.query.ressource === "staff") ressourceType = "staff"
-        }
         await super.sendResponse(req, res, async () => {
-            return StaffService.getInstance().getStaff(req.params.ressourceID, ressourceType)
+            if (req.query.ressource === "restaurant") {
+                return StaffService.getInstance().getStaffByRestaurant(req.params.ressourceID)
+            }
+            if (req.query.ressource === "staff") {
+                return StaffService.getInstance().getStaffByUser(req.params.ressourceID)
+            }
+            throw new ErrorResponse("Not found", 404)
         })
     }
 }
