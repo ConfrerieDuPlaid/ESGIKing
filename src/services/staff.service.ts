@@ -1,7 +1,7 @@
 import {RestaurantDocument, StaffDocument, StaffModel, StaffProps} from "../models";
 import {UserService} from "./user.service";
 import {Roles} from "../utils/roles";
-import {ErrorResponse} from "../utils";
+import {DataUtils, ErrorResponse} from "../utils";
 import {RestaurantService} from "../services";
 
 type StaffPartial = Partial<StaffProps>
@@ -32,17 +32,23 @@ export class StaffService {
     }
 
     public async addStaff (staffProps: StaffPartial): Promise<StaffDocument> {
+        DataUtils.hasMandatoryParams(staffProps, ["restaurantID", "userID"])
+
         const restaurant: RestaurantDocument | null = await RestaurantService.getInstance().getOneRestaurant(staffProps.restaurantID!)
         if (restaurant === null) {
             throw new ErrorResponse("This restaurant doesn't exist", 404)
         }
-        if (await this.userIsAssignedToRestaurant(staffProps.userID)) {
+        if (await this.userIsAssignedToRestaurant(staffProps.userID!)) {
             throw new ErrorResponse("This user is already assigned to a restaurant", 409)
         }
 
-        if (!await UserService.getInstance().validUserRole(
+        const userHasValidRole: boolean = await UserService.getInstance().validUserRole(
             staffProps.userID,
-            [Roles.toString(Roles.Admin), Roles.toString(Roles.OrderPicker)])) {
+            [
+                Roles.toString(Roles.Admin),
+                Roles.toString(Roles.OrderPicker)
+            ])
+        if (!userHasValidRole) {
             throw new ErrorResponse("Invalid user role", 400)
         }
         if (!!staffProps.role) {
@@ -65,6 +71,8 @@ export class StaffService {
     }
 
     public async deleteStaff (staffProps: StaffPartial): Promise<boolean> {
+        DataUtils.hasMandatoryParams(staffProps, ["restaurantID", "userID"])
+
         const res = await StaffModel.deleteOne({
             restaurantID: staffProps.restaurantID,
             userID: staffProps.userID
@@ -72,7 +80,7 @@ export class StaffService {
         return res.deletedCount !== 0
     }
 
-    public async userIsAssignedToRestaurant (userID: string | undefined): Promise<boolean> {
+    public async userIsAssignedToRestaurant (userID: string): Promise<boolean> {
         const staff = await StaffModel.findOne({
             userID: userID
         }).exec()

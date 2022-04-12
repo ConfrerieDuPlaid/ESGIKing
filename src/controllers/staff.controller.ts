@@ -1,6 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {DefaultController} from "./default.controller";
-import {ErrorResponse, verifyPermissions} from "../utils";
+import {DataUtils, ErrorResponse, verifyPermissions} from "../utils";
 import {Roles} from "../utils/roles";
 import {StaffService} from "../services";
 
