@@ -1,6 +1,8 @@
 
 import {SessionDocument, SessionModel, UserDocument, UserModel, UserProps} from "../models";
-import {DateUtils, ErrorResponse, SecurityUtils} from "../utils";
+import {DateUtils, ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
+import {Request} from "express";
+import {Roles} from "../utils/roles";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
@@ -17,6 +19,13 @@ export class AuthService {
     }
 
     private constructor() { }
+
+    public async verifyPermissions (req: Request, requiredRole: Roles) {
+        const authToken = getAuthorization(req)
+        if (!await this.isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
+            throw new ErrorResponse("You don't have permissions !", 403)
+        }
+    }
 
     public async isValidRoleAndSession (token: string | null, expectedRole: string): Promise<boolean> {
         if (!token) return false

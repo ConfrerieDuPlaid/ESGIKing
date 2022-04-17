@@ -1,7 +1,7 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
-import {RestaurantService} from "../services";
-import {ErrorResponse, verifyPermissions} from "../utils";
+import {AuthService, RestaurantService} from "../services";
+import {ErrorResponse} from "../utils";
 import {Roles} from "../utils/roles";
 
 export class RestaurantController extends DefaultController {
@@ -17,7 +17,7 @@ export class RestaurantController extends DefaultController {
 
     async createRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().createRestaurant({
                 name: req.body.name,
                 address: req.body.address
@@ -27,21 +27,21 @@ export class RestaurantController extends DefaultController {
 
     async getOneRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().getOneRestaurant(req.params.restaurantID)
         })
     }
 
     async getAllRestaurants (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().getAllRestaurants()
         })
     }
 
     async deleteRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             const res: boolean = await RestaurantService.getInstance().deleteRestaurant(req.params.restaurantID)
             if (!res) {
                 throw new ErrorResponse("An error occurred", 500)
@@ -52,7 +52,7 @@ export class RestaurantController extends DefaultController {
 
     async updateRestaurant (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             const res: boolean = await RestaurantService.getInstance().updateRestaurant(req.params.restaurantID, req.body)
             if (!res) {
                 throw new ErrorResponse("An error occurred", 500)

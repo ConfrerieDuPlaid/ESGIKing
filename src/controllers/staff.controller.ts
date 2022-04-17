@@ -1,8 +1,8 @@
 import express, {Request, Response, Router} from "express";
 import {DefaultController} from "./default.controller";
-import {DataUtils, ErrorResponse, verifyPermissions} from "../utils";
+import {DataUtils, ErrorResponse} from "../utils";
 import {Roles} from "../utils/roles";
-import {StaffService} from "../services";
+import {AuthService, StaffService} from "../services";
 
 export class StaffController extends DefaultController{
     buildRoutes (): Router {
@@ -16,14 +16,14 @@ export class StaffController extends DefaultController{
 
     async addEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return StaffService.getInstance().addStaff(req.body)
         }, 201)
     }
 
     async removeEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await verifyPermissions(req, Roles.BigBoss)
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             const res: boolean = await StaffService.getInstance().deleteStaff(req.body)
             if (!res) {
                 throw new ErrorResponse("An error occurred", 500)
