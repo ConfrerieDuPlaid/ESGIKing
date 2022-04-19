@@ -1,7 +1,8 @@
-import {UserDocument, UserModel, UserProps} from "../models";
-import {ErrorResponse, SecurityUtils, DateUtils} from "../utils";
-import {SessionDocument, SessionModel} from "../models";
-import exp from "constants";
+
+import {SessionDocument, SessionModel, UserDocument, UserModel, UserProps} from "../models";
+import {DateUtils, ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
+import {Request} from "express";
+import {Roles} from "../utils/roles";
 
 type UserWithoutId = Partial<UserProps>
 type UserLoginPwd = Pick<UserProps, "login" | "password">
@@ -19,19 +20,27 @@ export class AuthService {
 
     private constructor() { }
 
-    public async isValidRole  (token: string | null, expectedRole: string): Promise<boolean> {
-        if (token === null || token === "" || !await this.isValidSession(token)) return false
+    public async verifyPermissions (req: Request, requiredRole: Roles) {
+        const authToken = getAuthorization(req)
+        if (!await this.isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
+            throw new ErrorResponse("You don't have permissions !", 403)
+        }
+    }
+
+    public async isValidRoleAndSession (token: string | null, expectedRole: string): Promise<boolean> {
+        if (!token) return false
+        return await this.isValidSession(token) && await this.isValidRole(token, expectedRole)
+    }
+
+    public async isValidRole  (token: string, expectedRole: string): Promise<boolean> {
         const user = await UserModel.findOne({
             sessions: token
         })
         return user.role === expectedRole
     }
 
-    public async isValidSession (token: string | null): Promise<boolean> {
-        if (token === null || token === "") return false
-        const session = await SessionModel.findOne({
-            _id: token
-        })
+    public async isValidSession (token: string): Promise<boolean> {
+        const session = await SessionModel.findById(token).exec()
         return session.expiration > new Date()
     }
 
@@ -40,7 +49,7 @@ export class AuthService {
             throw new ErrorResponse("Missing password !", 400)
         }
 
-        if (user.role === "Admin" && !await this.isValidRole(token, "BigBoss")) {
+        if (user.role === "Admin" && !await this.isValidRoleAndSession(token, "BigBoss")) {
             throw new ErrorResponse("You have to be logged in as a Big Boss to create an Admin", 403)
         }
 

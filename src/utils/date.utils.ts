@@ -1,8 +1,8 @@
 export class DateUtils {
-    public static addNDaysToNow (n: number): Date {
+    public static addNDaysToNow (days: number): Date {
         let curDate = new Date()
         let newDate = new Date()
-        newDate.setDate(curDate.getDate() + n)
+        newDate.setDate(curDate.getDate() + days)
         return newDate
     }
 }

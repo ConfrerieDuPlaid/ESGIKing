@@ -1,6 +1,7 @@
 import express, {Request, Response, Router} from "express";
 import {AuthService} from "../services";
 import {DefaultController} from "./default.controller";
+import {getAuthorization} from "../utils";
 
 export class AuthController extends DefaultController {
     buildRoutes (): Router {
@@ -12,18 +13,13 @@ export class AuthController extends DefaultController {
 
     async createUser (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            let authBasic = req.headers.authorization
-            let authToken = null
-            if (typeof authBasic === "string") {
-                const authStr = authBasic.split(" ")
-                authToken = authStr[1]
-            }
+            const authToken = getAuthorization(req)
             return await AuthService.getInstance().subscribe({
                 login: req.body.login,
                 password: req.body.password,
                 role: req.body.role !== null ? req.body.role : null
             }, authToken)
-        })
+        }, 201)
     }
 
     async logUser (req: Request, res: Response) {
