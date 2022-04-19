@@ -61,10 +61,14 @@ export class RestaurantService {
 
 
     async addAProductInRestaurant(restaurantID: string, productID: string, authToken: string): Promise<boolean> {
-        const restaurant = await RestaurantService.getInstance().getOneRestaurant(restaurantID)
+        const restaurant: RestaurantDocument | null = await RestaurantService.getInstance().getOneRestaurant(restaurantID)
+        if(!restaurant){
+            return false;
+        }
         const staff = await StaffModel.findOne({
             restaurantID: restaurantID
         }).exec()
+
         const currentUser = await UserModel.findOne({
             sessions: authToken
         }).exec()
@@ -77,14 +81,11 @@ export class RestaurantService {
 
         if(productID) {
             if (restaurant?.products){
-                console.log("coucou")
                 restaurant?.products!.push(productID)
             }else{
-                console.log("coucou 2")
                 restaurant!.products = [productID]
             }
         }
-        restaurant?.save();
-        return true
+        return await restaurant.save() !== null
     }
 }
