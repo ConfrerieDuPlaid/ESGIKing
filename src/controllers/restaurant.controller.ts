@@ -67,7 +67,7 @@ export class RestaurantController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
 
-            RestaurantService.getInstance().addAProductInRestaurant(req.params.restaurantID, req.params.productID, authToken);
+            RestaurantService.getInstance().addAProductInRestaurant(req.params.restaurantID, req.params.productId, authToken);
         }, 204)
     }
 }

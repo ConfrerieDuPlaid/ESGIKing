@@ -73,8 +73,18 @@ export class RestaurantService {
             return false;
         }
 
+        //vérifier si le produit existe (à faire quand théo aura fait find on product)
 
-
+        if(productID) {
+            if (restaurant?.products){
+                console.log("coucou")
+                restaurant?.products!.push(productID)
+            }else{
+                console.log("coucou 2")
+                restaurant!.products = [productID]
+            }
+        }
+        restaurant?.save();
         return true
     }
 }

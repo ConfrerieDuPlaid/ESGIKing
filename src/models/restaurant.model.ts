@@ -27,6 +27,7 @@ export interface RestaurantProps {
     _id: string
     name: string
     address: string
+    products?: string[]
 }
 
 export type RestaurantDocument = RestaurantProps & Document
