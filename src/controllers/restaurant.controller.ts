@@ -1,8 +1,9 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
 import {AuthService, RestaurantService} from "../services";
-import {ErrorResponse} from "../utils";
+import {ErrorResponse, getAuthorization} from "../utils";
 import {Roles} from "../utils/roles";
+import {StaffModel} from "../models";
 
 export class RestaurantController extends DefaultController {
     buildRoutes (): Router {
@@ -12,6 +13,7 @@ export class RestaurantController extends DefaultController {
         router.get('/', this.getAllRestaurants.bind(this))
         router.delete('/:restaurantID', this.deleteRestaurant.bind(this))
         router.patch('/:restaurantID', express.json(), this.updateRestaurant.bind(this))
+        router.patch('/addProduct/:restaurantID/:productId', express.json(), this.addAproductInRestaurant.bind(this))
         return router
     }
 
@@ -58,6 +60,14 @@ export class RestaurantController extends DefaultController {
                 throw new ErrorResponse("An error occurred", 500)
             }
             return res
+        }, 204)
+    }
+
+    async addAproductInRestaurant(req: Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            const authToken = getAuthorization(req);
+
+            RestaurantService.getInstance().addAProductInRestaurant(req.params.restaurantID, req.params.productID, authToken);
         }, 204)
     }
 }

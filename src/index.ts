@@ -1,13 +1,17 @@
 import {config} from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import {AuthController, StaffController} from "./controllers/"
+
+import {AuthController, ProductsController, StaffController} from "./controllers/"
 import {RestaurantController} from "./controllers/"
 config()
 
 const controllerPaths = {
     "/auth": AuthController
 }
+
+
+
 
 
 async function startServer (): Promise<void> {
@@ -31,6 +35,9 @@ async function startServer (): Promise<void> {
     app.use('/auth', authController.buildRoutes())
     app.use('/restaurant', restaurantController.buildRoutes())
     app.use('/staff', staffController.buildRoutes())
+
+    const productsController = new ProductsController();
+    app.use('/products', productsController.buildRoutes());
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);

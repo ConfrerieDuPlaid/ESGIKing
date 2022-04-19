@@ -3,6 +3,7 @@ import {ErrorResponse} from "../utils";
 import {Roles} from "../utils/roles"
 import {UserService} from "./user.service"
 import {StaffModel} from "../models/staff.model";
+import {AuthService} from "./auth.service";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 type RestaurantPartial = Partial<RestaurantProps>
@@ -59,4 +60,20 @@ export class RestaurantService {
     }
 
 
+    async addAProductInRestaurant(restaurantID: string, productID: string, authToken: string): Promise<boolean> {
+        const restaurant = await RestaurantService.getInstance().getOneRestaurant(restaurantID)
+        const staff = await StaffModel.findOne({
+            restaurantID: restaurantID
+        }).exec()
+        const currentUser = await UserModel.findOne({
+            sessions: authToken
+        }).exec()
+        if(currentUser._id.toString() != staff.userID.toString()){
+            return false;
+        }
+
+
+
+        return true
+    }
 }
