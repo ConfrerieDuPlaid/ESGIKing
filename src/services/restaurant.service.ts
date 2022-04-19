@@ -68,6 +68,7 @@ export class RestaurantService {
         const currentUser = await UserModel.findOne({
             sessions: authToken
         }).exec()
+
         if(currentUser._id.toString() != staff.userID.toString()){
             return false;
         }

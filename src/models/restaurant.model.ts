@@ -9,7 +9,13 @@ const restaurantSchema = new Schema({
         type: Schema.Types.String,
         required: true,
         unique: true
-    }
+    },
+    products: [{
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: false,
+
+    }]
     //Menus
 }, {
     collection: "restaurants",
