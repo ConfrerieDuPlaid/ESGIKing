@@ -69,7 +69,7 @@ export class RestaurantController extends DefaultController {
 
             const res: boolean = await RestaurantService.getInstance().addAProductInRestaurant(req.params.restaurantID, req.params.productId, authToken);
             if (!res) {
-                throw new ErrorResponse("An error occurred", 500)
+                throw new ErrorResponse("The product cannot be added to the restaurant", 500)
             }
             return res
         }, 204)
