@@ -61,6 +61,7 @@ export class RestaurantService {
 
 
     async addAProductInRestaurant(restaurantID: string, productID: string, authToken: string): Promise<boolean> {
+
         const restaurant: RestaurantDocument | null = await RestaurantService.getInstance().getOneRestaurant(restaurantID)
         if(!restaurant){
             return false;

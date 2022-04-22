@@ -12,8 +12,8 @@ export class RestaurantController extends DefaultController {
         router.get('/:restaurantID', this.getOneRestaurant.bind(this))
         router.get('/', this.getAllRestaurants.bind(this))
         router.delete('/:restaurantID', this.deleteRestaurant.bind(this))
+        router.patch('/addProduct', express.json(), this.addAproductInRestaurant.bind(this))
         router.patch('/:restaurantID', express.json(), this.updateRestaurant.bind(this))
-        router.patch('/addProduct/:restaurantID/:productId', express.json(), this.addAproductInRestaurant.bind(this))
         return router
     }
 
@@ -65,9 +65,9 @@ export class RestaurantController extends DefaultController {
 
     async addAproductInRestaurant(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            const authToken = getAuthorization(req);
 
-            const res: boolean = await RestaurantService.getInstance().addAProductInRestaurant(req.params.restaurantID, req.params.productId, authToken);
+            const authToken = getAuthorization(req);
+            const res: boolean = await RestaurantService.getInstance().addAProductInRestaurant(req.body.restaurantID, req.body.productId, authToken);
             if (!res) {
                 throw new ErrorResponse("The product cannot be added to the restaurant", 500)
             }
