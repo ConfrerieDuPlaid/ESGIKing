@@ -1,6 +1,7 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
 import {ReductionService} from "../services/reduction.service";
+import {ErrorResponse, getAuthorization} from "../utils";
 
 export class ReductionController extends DefaultController{
 
@@ -19,14 +20,18 @@ export class ReductionController extends DefaultController{
 
 
     async createReduction(req : Request, res: Response) {
+        const authToken = getAuthorization(req);
         await super.sendResponse(req, res, async () => {
-            await this.reductionService.createReduction({
+            const res: boolean = await this.reductionService.createReduction({
                     name: req.body.name,
                     restaurant: req.body.restaurant,
                     product: req.body.product,
                     amount: +req.body.amount
-                }
+                }, authToken
             );
+            if(!res){
+                throw new ErrorResponse("The reduction cannot be added to the restaurant", 500)
+            }
         }, 201);
     }
 

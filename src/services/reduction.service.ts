@@ -1,5 +1,6 @@
 import {ReductionModel, ReductionProps} from "../models/reduction.model";
-import {ErrorResponse} from "../utils";
+import {ErrorResponse, getAuthorization} from "../utils";
+import {StaffModel, UserModel} from "../models";
 
 export class ReductionService{
 
@@ -12,7 +13,20 @@ export class ReductionService{
         return ReductionService.instance
     }
 
-    async createReduction(reduction: Partial<ReductionProps>) {
+    async createReduction(reduction: Partial<ReductionProps>, authToken: string): Promise<boolean> {
+
+        const staff = await StaffModel.findOne({
+            restaurantID: reduction.restaurant
+        }).exec()
+
+        const currentUser = await UserModel.findOne({
+            sessions: authToken
+        }).exec()
+
+        if(currentUser._id.toString() != staff.userID.toString()){
+            return false;
+        }
+
         if(!reduction.name || !reduction.amount){
             throw new ErrorResponse("Wrong name or price", 400)
         }
@@ -24,6 +38,7 @@ export class ReductionService{
             amount: reduction.amount
         })
         newReductionModel.save();
+        return true;
     }
 
     async getAllReduction() {

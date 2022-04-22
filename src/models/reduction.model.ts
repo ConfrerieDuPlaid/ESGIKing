@@ -4,7 +4,6 @@ const reductionSchema = new Schema({
     name: {
         type: Schema.Types.String,
         required: true,
-        unique: true
     },
     restaurant: {
         type: Schema.Types.ObjectId,
