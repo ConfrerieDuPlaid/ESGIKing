@@ -1,6 +1,6 @@
 import {ReductionModel, ReductionProps} from "../models/reduction.model";
-import {ErrorResponse, getAuthorization} from "../utils";
-import {StaffModel, UserModel} from "../models";
+import {ErrorResponse} from "../utils";
+import {RestaurantModel, StaffModel, UserModel} from "../models";
 
 export class ReductionService{
 
@@ -14,6 +14,18 @@ export class ReductionService{
     }
 
     async createReduction(reduction: Partial<ReductionProps>, authToken: string): Promise<boolean> {
+
+        const isProductInRestaurant = await RestaurantModel.findOne({
+            _id: reduction.restaurant,
+            products: reduction.product
+        })
+
+
+
+        if(!isProductInRestaurant){
+            console.log(isProductInRestaurant)
+            return false;
+        }
 
         const staff = await StaffModel.findOne({
             restaurantID: reduction.restaurant
