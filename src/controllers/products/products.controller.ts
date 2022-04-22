@@ -2,7 +2,7 @@ import {DefaultController} from "../index";
 import express, {Request, Response, Router} from "express";
 import {ProductsService} from "../../services/products/products.service";
 import {ProductResponseAdapter} from "./product.response.adapter";
-import { Product } from "../../services/products/domain/product";
+import {Product} from "../../services/products/domain/product";
 
 export class ProductsController extends DefaultController {
     private readonly productService: ProductsService = ProductsService.getInstance();
@@ -26,7 +26,8 @@ export class ProductsController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const product: Product = await this.productService.createProduct({
                 name: req.body.name,
-                price: +req.body.price
+                price: +req.body.price,
+                reduction: req.body.reduction
             });
             return ProductResponseAdapter.adapt(product);
         }, 201);

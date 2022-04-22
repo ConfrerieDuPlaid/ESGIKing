@@ -12,7 +12,7 @@ export class RestaurantController extends DefaultController {
         router.get('/:restaurantID', this.getOneRestaurant.bind(this))
         router.get('/', this.getAllRestaurants.bind(this))
         router.delete('/:restaurantID', this.deleteRestaurant.bind(this))
-        router.patch('/addProduct', express.json(), this.addAproductInRestaurant.bind(this))
+        router.patch('/addProduct/', express.json(), this.addAproductInRestaurant.bind(this))
         router.patch('/:restaurantID', express.json(), this.updateRestaurant.bind(this))
         return router
     }

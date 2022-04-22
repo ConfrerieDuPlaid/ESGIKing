@@ -4,11 +4,13 @@ import mongoose from "mongoose";
 
 import {AuthController, ProductsController, StaffController} from "./controllers/"
 import {RestaurantController} from "./controllers/"
+import {ReductionController} from "./controllers/reduction.controller";
 config()
 
 const controllerPaths = {
     "/auth": AuthController
 }
+
 
 
 
@@ -38,6 +40,10 @@ async function startServer (): Promise<void> {
 
     const productsController = new ProductsController();
     app.use('/products', productsController.buildRoutes());
+
+    const reductionController = new ReductionController()
+    app.use('/reduction', reductionController.buildRoutes());
+
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);
