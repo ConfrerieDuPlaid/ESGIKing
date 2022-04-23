@@ -17,6 +17,10 @@ const reductionSchema = new Schema({
         type: Schema.Types.Number,
         required: true
     },
+    status: {
+        type: Schema.Types.Number,
+        required: true
+    }
 }, {
     collection: "reductions",
     timestamps: true,
@@ -29,6 +33,7 @@ export interface ReductionProps {
     restaurant: string;
     product: string;
     amount: number;
+    status: number;
 }
 
 export type ReductionDocument = ReductionProps & Document

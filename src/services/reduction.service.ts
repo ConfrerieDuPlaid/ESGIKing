@@ -20,8 +20,6 @@ export class ReductionService{
             products: reduction.product
         })
 
-
-
         if(!isProductInRestaurant){
             console.log(isProductInRestaurant)
             return false;
@@ -47,7 +45,8 @@ export class ReductionService{
             name: reduction.name,
             restaurant: reduction.restaurant,
             product: reduction.product,
-            amount: reduction.amount
+            amount: reduction.amount,
+            status: 1,
         })
         newReductionModel.save();
         return true;
