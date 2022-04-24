@@ -2,6 +2,8 @@ import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
 import {ReductionService} from "../services/reduction.service";
 import {ErrorResponse, getAuthorization} from "../utils";
+import {AuthService} from "../services";
+import {Roles} from "../utils/roles";
 
 export class ReductionController extends DefaultController{
 
@@ -37,12 +39,14 @@ export class ReductionController extends DefaultController{
 
     async getAllReduction(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin)
             return await this.reductionService.getAllReduction();
         }, 201);
     }
 
     async getReductionById(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin)
             return await this.reductionService.getReductionById(req.params.reductionId);
         }, 201);
     }

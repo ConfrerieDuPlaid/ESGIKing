@@ -1,6 +1,7 @@
 import {ReductionModel, ReductionProps} from "../models/reduction.model";
 import {ErrorResponse} from "../utils";
 import {RestaurantModel, StaffModel, UserModel} from "../models";
+import {RestaurantService} from "./restaurant.service";
 
 export class ReductionService{
 
@@ -21,20 +22,13 @@ export class ReductionService{
         })
 
         if(!isProductInRestaurant){
-            console.log(isProductInRestaurant)
             return false;
         }
 
-        const staff = await StaffModel.findOne({
-            restaurantID: reduction.restaurant
-        }).exec()
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(reduction.restaurant!, authToken)
 
-        const currentUser = await UserModel.findOne({
-            sessions: authToken
-        }).exec()
-
-        if(currentUser._id.toString() != staff.userID.toString()){
-            return false;
+        if(!isAdmin){
+            throw new ErrorResponse("You're not the admin", 401)
         }
 
         if(!reduction.name || !reduction.amount){
