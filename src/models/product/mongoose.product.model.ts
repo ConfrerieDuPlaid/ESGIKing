@@ -1,5 +1,4 @@
 import mongoose, {Document, Schema} from "mongoose";
-import exp from "constants";
 
 const productSchema = new Schema({
     name: {
@@ -10,6 +9,11 @@ const productSchema = new Schema({
     price: {
         type: Schema.Types.Number,
         required: true
+    },
+    reduction: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "Reduction"
     }
 }, {
     collection: 'products',
@@ -21,6 +25,7 @@ export interface MongooseProductProps {
     _id: string;
     name: string;
     price: number;
+    reduction?: string;
 }
 
 export type ProductDocument = MongooseProductProps & Document;

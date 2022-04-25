@@ -2,6 +2,7 @@ import {config} from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import {AuthController, ProductsController, RestaurantController, StaffController} from "./controllers/"
+import {ReductionController} from "./controllers/reduction.controller";
 
 config()
 
@@ -35,6 +36,10 @@ async function startServer (): Promise<void> {
 
     const productsController = new ProductsController();
     app.use('/products', productsController.buildRoutes());
+
+    const reductionController = new ReductionController()
+    app.use('/reduction', reductionController.buildRoutes());
+
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);
