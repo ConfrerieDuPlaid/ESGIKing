@@ -23,8 +23,10 @@ export class ProductsService {
         if(!dto.name || !dto.price) {
             throw new ErrorResponse('Name or Price missing', 400);
         }
-        if(!await ReductionService.getInstance().getReductionById(dto.reduction)){
-            throw new ErrorResponse('Wrong id of reduction', 400);
+        if(dto.reduction && dto.reduction != "") {
+            if (!await ReductionService.getInstance().getReductionById(dto.reduction)) {
+                throw new ErrorResponse('Wrong id of reduction', 400);
+            }
         }
         const product: Product = Product.withoutId({
             name: dto.name,
