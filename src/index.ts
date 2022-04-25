@@ -7,9 +7,9 @@ import {ReductionController} from "./controllers/reduction.controller";
 config()
 
 const controllerPaths = {
-    "/auth": AuthController,
-    "/products": ProductsController
+    "/auth": AuthController
 }
+
 
 
 
