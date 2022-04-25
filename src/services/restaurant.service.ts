@@ -3,6 +3,7 @@ import {ErrorResponse} from "../utils";
 import {Roles} from "../utils/roles"
 import {UserService} from "./user.service"
 import {StaffModel} from "../models/staff.model";
+import {AuthService} from "./auth.service";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 type RestaurantPartial = Partial<RestaurantProps>
@@ -19,6 +20,23 @@ export class RestaurantService {
     }
 
     private constructor() { }
+
+    public async verifyAdminRestaurant(restaurant: string, authToken: string): Promise<Boolean> {
+        const staff = await StaffModel.findOne({
+            restaurantID: restaurant
+        }).exec()
+
+        const currentUser = await UserModel.findOne({
+            sessions: authToken
+        }).exec()
+
+
+        if(currentUser._id.toString() != staff.userID.toString()){
+            return false;
+        }
+
+        return true;
+    }
 
     public async createRestaurant (restaurant: RestaurantWithoutId): Promise<RestaurantDocument> {
         if (!restaurant.name) {
@@ -59,4 +77,27 @@ export class RestaurantService {
     }
 
 
+    async addAProductInRestaurant(restaurantID: string, productID: string, authToken: string): Promise<boolean> {
+
+        const restaurant: RestaurantDocument | null = await RestaurantService.getInstance().getOneRestaurant(restaurantID)
+        if(!restaurant){
+            return false;
+        }
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(restaurantID, authToken)
+
+        if(!isAdmin){
+            throw new ErrorResponse("You're not the admin", 401)
+        }
+
+        //vérifier si le produit existe (à faire quand théo aura fait find on product)
+
+        if(productID) {
+            if (restaurant?.products){
+                restaurant?.products!.push(productID)
+            }else{
+                restaurant!.products = [productID]
+            }
+        }
+        return await restaurant.save() !== null
+    }
 }

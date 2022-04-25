@@ -1,5 +1,7 @@
 import {ReductionModel, ReductionProps} from "../models/reduction.model";
 import {ErrorResponse} from "../utils";
+import {RestaurantModel, StaffModel, UserModel} from "../models";
+import {RestaurantService} from "./restaurant.service";
 
 export class ReductionService{
 
@@ -12,16 +14,36 @@ export class ReductionService{
         return ReductionService.instance
     }
 
-    async createReduction(reduction: Partial<ReductionProps>) {
+    async createReduction(reduction: Partial<ReductionProps>, authToken: string): Promise<boolean> {
+
+        const isProductInRestaurant = await RestaurantModel.findOne({
+            _id: reduction.restaurant,
+            products: reduction.product
+        })
+
+        if(!isProductInRestaurant){
+            return false;
+        }
+
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(reduction.restaurant!, authToken)
+
+        if(!isAdmin){
+            throw new ErrorResponse("You're not the admin", 401)
+        }
+
         if(!reduction.name || !reduction.amount){
             throw new ErrorResponse("Wrong name or price", 400)
         }
 
         const newReductionModel = new ReductionModel({
             name: reduction.name,
-            amount: reduction.amount
+            restaurant: reduction.restaurant,
+            product: reduction.product,
+            amount: reduction.amount,
+            status: 1,
         })
         newReductionModel.save();
+        return true;
     }
 
     async getAllReduction() {

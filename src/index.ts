@@ -1,15 +1,19 @@
 import {config} from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import {AuthController, ProductsController, RestaurantController, StaffController} from "./controllers/"
-import {ReductionController} from "./controllers/reduction.controller";
 
+import {AuthController, ProductsController, StaffController} from "./controllers/"
+import {RestaurantController} from "./controllers/"
+import {ReductionController} from "./controllers/reduction.controller";
 config()
 
 const controllerPaths = {
-    "/auth": AuthController,
-    "/products": ProductsController
+    "/auth": AuthController
 }
+
+
+
+
 
 
 async function startServer (): Promise<void> {
