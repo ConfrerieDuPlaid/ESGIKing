@@ -1,8 +1,9 @@
 
 import {MenuModel, MenuProps} from "../../models/menus/menu.model";
-import {ErrorResponse} from "../../utils";
+import {ErrorResponse, getAuthorization} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
 import {RestaurantModel} from "../../models";
+import {AuthService} from "../auth.service";
 
 
 type MenuWithoutId = Partial<MenuProps>
@@ -20,8 +21,9 @@ export class MenuService {
 
     private constructor() { }
 
-    public async createMenu (Menu: MenuWithoutId): Promise<Boolean> {
-        const verifyIfRightParameters = await this.verifyMenuMandatory(Menu)
+    public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<Boolean> {
+
+        const verifyIfRightParameters = await this.verifyMenuMandatory(Menu, authToken)
         if(!verifyIfRightParameters) {
             return false;
         }
@@ -37,19 +39,23 @@ export class MenuService {
             amount: Menu.amount,
             status: 1
         })
-        console.log(model)
         const newMenu = model.save()
         return !!newMenu;
     }
 
-    private async verifyMenuMandatory(Menu: MenuWithoutId) {
+    private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
 
         if (!restaurant) {
-
             return false;
         }
+
+        if(!isAdmin){
+            return false;
+        }
+
         let isFalse = 0;
         Menu.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
