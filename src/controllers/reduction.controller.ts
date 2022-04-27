@@ -4,6 +4,7 @@ import {ReductionService} from "../services/reduction.service";
 import {ErrorResponse, getAuthorization} from "../utils";
 import {AuthService} from "../services";
 import {Roles} from "../utils/roles";
+import {ReductionModel} from "../models/reduction.model";
 
 export class ReductionController extends DefaultController{
 

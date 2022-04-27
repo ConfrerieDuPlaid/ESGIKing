@@ -71,6 +71,11 @@ export class ReductionService{
         if(reductionBody.amount){
             reduction.amount = reductionBody.amount
         }
+        if(reductionBody.status && (reductionBody.status!.toString() == "0" || reductionBody.status!.toString() == "1")){
+            reduction.status =  reductionBody.status
+
+        }
+
         reduction.save()
     }
 }
