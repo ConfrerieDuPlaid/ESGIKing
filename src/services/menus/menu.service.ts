@@ -1,9 +1,8 @@
 
 import {MenuModel, MenuProps} from "../../models/menus/menu.model";
-import {ErrorResponse, getAuthorization} from "../../utils";
+import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
-import {RestaurantModel} from "../../models";
-import {AuthService} from "../auth.service";
+
 
 
 type MenuWithoutId = Partial<MenuProps>
@@ -60,12 +59,33 @@ export class MenuService {
         Menu.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
                 isFalse = 1;
-                return false
+                return ;
             }
         })
         if(isFalse == 1){
             return false;
         }
     return true;
+    }
+
+    async updateMenu(body: Partial<MenuProps>, menuId: String, authToken: string): Promise<Boolean> {
+        let updateMenu = await MenuModel.findById(menuId).exec();
+        if(!updateMenu){
+            return false;
+        }
+        if(body.amount){
+            updateMenu.amount = body.amount;
+        }
+        if(body.name){
+            updateMenu.name = body.name;
+        }
+        if(body.restaurant){
+            updateMenu.restaurant = body.restaurant;
+        }
+        if(body.products){
+            updateMenu.products = body.products;
+        }
+        updateMenu.save()
+        return true;
     }
 }
