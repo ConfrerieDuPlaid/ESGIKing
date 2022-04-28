@@ -68,7 +68,12 @@ export class MenuService {
     return true;
     }
 
-    async updateMenu(body: Partial<MenuProps>, menuId: String, restaurantId: string, authToken: string): Promise<Boolean> {
+    async updateMenu(body: Partial<MenuProps>, menuId: string, restaurantId: string, authToken: string): Promise<Boolean> {
+
+        if(!menuId){
+            return false;
+        }
+
         let updateMenu = await MenuModel.findById(menuId).exec();
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(restaurantId);
