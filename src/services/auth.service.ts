@@ -29,16 +29,20 @@ export class AuthService {
         }
     }
 
-    public async isValidRoleAndSession (token: string | null, expectedRole: string): Promise<boolean> {
+    public async isValidRoleAndSession (token: string | null, expectedRole: string | string[]): Promise<boolean> {
         if (!token) return false
         return await this.isValidSession(token) && await this.isValidRole(token, expectedRole)
     }
 
-    public async isValidRole  (token: string, expectedRole: string): Promise<boolean> {
+    public async isValidRole  (token: string, expectedRole: string | string[]): Promise<boolean> {
         const user = await UserModel.findOne({
-            sessions: token
+            $or: [
+                {sessions: token},
+                {_id: token}
+            ]
         })
-        return user.role === expectedRole
+        if (typeof expectedRole == "string") return user.role === expectedRole
+        return expectedRole.indexOf(user.role) !== -1
     }
 
     public async isValidSession (token: string): Promise<boolean> {
