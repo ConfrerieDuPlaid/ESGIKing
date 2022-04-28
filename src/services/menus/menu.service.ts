@@ -12,6 +12,7 @@ export class MenuService {
 
     private static instance: MenuService
 
+
     public static getInstance (): MenuService {
         if (MenuService.instance === undefined) {
             MenuService.instance = new MenuService()
@@ -23,7 +24,7 @@ export class MenuService {
 
     public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<Boolean> {
 
-        const verifyIfRightParameters = await this.verifyMenuMandatory(Menu, authToken)
+        const verifyIfRightParameters = await this.verificationOnMenu(Menu, authToken)
         if(!verifyIfRightParameters) {
             return false;
         }
@@ -43,7 +44,7 @@ export class MenuService {
         return !!newMenu;
     }
 
-    private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
+    private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
         const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
@@ -56,16 +57,16 @@ export class MenuService {
             return false;
         }
 
-        let isFalse = 0;
-        Menu.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
-                isFalse = 1;
-                return false
+        let productIsInTheRestaurant = true;
+        Menu.products!.forEach(productId => {
+            if(!restaurant.products!.includes(productId)){
+                productIsInTheRestaurant = false;
+                return ;
             }
         })
-        if(isFalse == 1){
-            return false;
-        }
-    return true;
+        
+        return productIsInTheRestaurant;
+        
+    
     }
 }
