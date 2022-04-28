@@ -68,20 +68,28 @@ export class MenuService {
     return true;
     }
 
-    async updateMenu(body: Partial<MenuProps>, menuId: String, authToken: string): Promise<Boolean> {
+    async updateMenu(body: Partial<MenuProps>, menuId: String, restaurantId: string, authToken: string): Promise<Boolean> {
         let updateMenu = await MenuModel.findById(menuId).exec();
+
+        const restaurant = await RestaurantService.getInstance().getOneRestaurant(restaurantId);
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(restaurant?._id, authToken);
+
+        if (!restaurant || !isAdmin) {
+            return false;
+        }
+
         if(!updateMenu){
             return false;
         }
+
         if(body.amount){
             updateMenu.amount = body.amount;
         }
+
         if(body.name){
             updateMenu.name = body.name;
         }
-        if(body.restaurant){
-            updateMenu.restaurant = body.restaurant;
-        }
+
         if(body.products){
             updateMenu.products = body.products;
         }

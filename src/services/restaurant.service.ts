@@ -30,7 +30,6 @@ export class RestaurantService {
             sessions: authToken
         }).exec()
 
-
         if(currentUser._id.toString() != staff.userID.toString()){
             return false;
         }
