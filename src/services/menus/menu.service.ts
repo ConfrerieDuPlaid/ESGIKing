@@ -23,7 +23,7 @@ export class MenuService {
 
     private constructor() { }
 
-    public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<Boolean> {
+    public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<MenuProps | Boolean> {
 
         const verifyIfRightParameters = await this.verificationOnMenu(Menu, authToken)
         if(!verifyIfRightParameters) {
@@ -42,8 +42,12 @@ export class MenuService {
             status: Status.created,
         })
 
-        const newMenu = model.save()
-        return !!newMenu;
+        const newMenu = await model.save()
+        if(newMenu){
+            return newMenu
+        }else {
+            return false;
+        }
     }
 
     private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
