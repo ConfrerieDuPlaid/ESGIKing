@@ -18,7 +18,7 @@ const MenuSchema = new Schema({
         required: true
     },
     status: {
-        type: Schema.Types.Number,
+        type: Schema.Types.String,
         required: true
     }
 }, {
@@ -33,7 +33,7 @@ export interface MenuProps {
     restaurant: string;
     products: string[];
     amount: number;
-    status: number;
+    status: string;
 }
 
 export type MenuDocument = MenuProps & Document
