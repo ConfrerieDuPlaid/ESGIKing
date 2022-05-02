@@ -47,6 +47,7 @@ export class MenuService {
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
         const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
 
+
         if (!restaurant) {
             return false;
         }
@@ -54,7 +55,6 @@ export class MenuService {
         if(!isAdmin){
             return false;
         }
-
         let isFalse = 0;
         Menu.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
@@ -65,10 +65,11 @@ export class MenuService {
         if(isFalse == 1){
             return false;
         }
-    return true;
+
+        return true;
     }
 
-    async updateMenu(body: Partial<MenuProps>, menuId: string, restaurantId: string, authToken: string): Promise<Boolean> {
+    async updateMenu(menu: Partial<MenuProps>, menuId: string, restaurantId: string, authToken: string): Promise<Boolean> {
 
         if(!menuId){
             return false;
@@ -76,27 +77,30 @@ export class MenuService {
 
         let updateMenu = await MenuModel.findById(menuId).exec();
 
-        const restaurant = await RestaurantService.getInstance().getOneRestaurant(restaurantId);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(restaurant?._id, authToken);
-
-        if (!restaurant || !isAdmin) {
-            return false;
-        }
-
         if(!updateMenu){
             return false;
         }
 
-        if(body.amount){
-            updateMenu.amount = body.amount;
+        const isvalid = await this.verifyMenuMandatory({
+            name: menu.name,
+            restaurant: restaurantId,
+            products: menu.products,
+            amount: +menu!.amount!
+        },  authToken);
+        if(!isvalid){
+            throw new ErrorResponse("Wrong request", 400);
         }
 
-        if(body.name){
-            updateMenu.name = body.name;
+        if(menu.amount && menu.amount > 0){
+            updateMenu.amount = menu.amount;
         }
 
-        if(body.products){
-            updateMenu.products = body.products;
+        if(menu.name){
+            updateMenu.name = menu.name;
+        }
+
+        if(menu.products && menu.products.length > 0){
+            updateMenu.products = menu.products;
         }
         updateMenu.save()
         return true;

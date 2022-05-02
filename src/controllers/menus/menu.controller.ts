@@ -37,7 +37,7 @@ export class MenuController extends DefaultController{
     async updateMenu(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
-            //await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
             const res: Boolean = await this.menuService.updateMenu(req.body, req.body.menuId, req.params.restaurantId, authToken);
             if(!res){
                 throw new ErrorResponse("The menu cannot be update", 500)

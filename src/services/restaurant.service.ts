@@ -22,6 +22,7 @@ export class RestaurantService {
     private constructor() { }
 
     public async verifyAdminRestaurant(restaurant: string, authToken: string): Promise<Boolean> {
+
         const staff = await StaffModel.findOne({
             restaurantID: restaurant
         }).exec()
