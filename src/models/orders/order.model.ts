@@ -21,7 +21,7 @@ const OrderSchema = new Schema({
         required: true
     },
     status: {
-        type: Schema.Types.Number,
+        type: Schema.Types.String,
         required: true
     },
     reduction: {
@@ -41,7 +41,7 @@ export interface OrderProps {
     products: string[];
     menus?: string[];
     amount: number;
-    status: number;
+    status: string;
     reductionId?: string;
 }
 

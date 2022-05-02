@@ -4,6 +4,7 @@ import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
 import {ReductionService} from "../reduction.service";
 import {ProductModel} from "../../models/product/mongoose.product.model";
+import {OrderStatus} from "./order.status";
 
 
 
@@ -37,7 +38,7 @@ export class OrderService {
             reductionId: Order.reductionId,
             products: Order.products,
             amount: amoutOfOrder,
-            status: 1
+            status: OrderStatus[0]
         })
 
         const newOrder = await model.save();

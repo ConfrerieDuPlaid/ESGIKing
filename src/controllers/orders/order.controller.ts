@@ -5,6 +5,7 @@ import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {OrderService} from "../../services/orders/order.service";
 import {OrderProps} from "../../models/orders/order.model";
+import {OrderStatus} from "../../services/orders/order.status";
 
 export class OrderController extends DefaultController{
 
@@ -23,7 +24,7 @@ export class OrderController extends DefaultController{
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
             const res: Boolean | OrderProps = await this.orderService.createOrder({
-                status: 1,
+                status: OrderStatus[0],
                 restaurant: req.body.restaurant,
                 products: req.body.products,
                 amount: 0,
