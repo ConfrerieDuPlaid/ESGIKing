@@ -1,10 +1,7 @@
 
 import {MenuModel, MenuProps} from "../../models/menus/menu.model";
-import {ErrorResponse, getAuthorization} from "../../utils";
+import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
-import {RestaurantModel} from "../../models";
-import {AuthService} from "../auth.service";
-import {Status} from "./menu.status";
 
 
 type MenuWithoutId = Partial<MenuProps>
@@ -39,7 +36,7 @@ export class MenuService {
             restaurant: Menu.restaurant,
             products: Menu.products,
             amount: Menu.amount,
-            status: Status.created,
+            status: 1,
         })
 
         const newMenu = await model.save()
