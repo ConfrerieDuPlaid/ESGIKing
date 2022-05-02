@@ -105,4 +105,8 @@ export class MenuService {
         updateMenu.save()
         return true;
     }
+
+    async getAllReduction(): Promise<MenuProps[]> {
+        return await MenuModel.find().exec();
+    }
 }

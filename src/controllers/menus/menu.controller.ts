@@ -4,6 +4,7 @@ import {ErrorResponse, getAuthorization} from "../../utils";
 import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {MenuService} from "../../services/menus/menu.service";
+import {MenuResponseAdapter} from "./menu.response.adapter";
 
 export class MenuController extends DefaultController{
 
@@ -12,11 +13,20 @@ export class MenuController extends DefaultController{
 
     buildRoutes (): Router {
         const router = express.Router()
+        router.get('/', express.json(), this.getAllMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
         router.patch('/:restaurantId', express.json(), this.updateMenu.bind(this))
         return router
     }
 
+    async getAllMenu(req : Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
+            const menus = await this.menuService.getAllReduction();
+            return menus.map(menu => MenuResponseAdapter.adapt(menu))
+
+        }, 201);
+    }
 
     async createMenu(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
