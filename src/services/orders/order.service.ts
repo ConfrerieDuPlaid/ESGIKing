@@ -22,7 +22,7 @@ export class OrderService {
 
     private constructor() { }
 
-    public async createOrder (Order: OrderWithoutId): Promise<Boolean> {
+    public async createOrder (Order: OrderWithoutId): Promise<OrderProps | Boolean> {
 
         const verifyOrder = await this.verifyOrder(Order)
         if(!verifyOrder) {
@@ -40,8 +40,13 @@ export class OrderService {
             status: 1
         })
 
-        const newOrder = model.save()
-        return !!newOrder;
+        const newOrder = await model.save();
+        if(newOrder){
+            return newOrder;
+        }else{
+            return false;
+        }
+
     }
 
     private async verifyOrder(Order: OrderWithoutId) {
@@ -78,7 +83,6 @@ export class OrderService {
             const product = await ProductModel.findById(elm)
             amount += product.price;
         }
-        console.log(amount);
         return amount;
     }
 }

@@ -4,6 +4,7 @@ import {ErrorResponse, getAuthorization} from "../../utils";
 import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {OrderService} from "../../services/orders/order.service";
+import {OrderProps} from "../../models/orders/order.model";
 
 export class OrderController extends DefaultController{
 
@@ -21,7 +22,7 @@ export class OrderController extends DefaultController{
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
-            const res: Boolean = await this.orderService.createOrder({
+            const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: 1,
                 restaurant: req.body.restaurant,
                 products: req.body.products,
@@ -31,6 +32,8 @@ export class OrderController extends DefaultController{
             });
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
+            }else{
+                return res;
             }
         }, 201);
     }
