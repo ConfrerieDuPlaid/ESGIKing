@@ -35,6 +35,17 @@ export class ReductionService{
             throw new ErrorResponse("Wrong name or price", 400)
         }
 
+        const existingReduction = await ReductionModel.findOne({
+            restaurant: reduction.restaurant,
+            product: reduction.product,
+            amount: reduction.amount,
+            status: 1
+        })
+
+        if(existingReduction){
+            throw new ErrorResponse("this reduction already exist", 400);
+        }
+
         const newReductionModel = new ReductionModel({
             name: reduction.name,
             restaurant: reduction.restaurant,
