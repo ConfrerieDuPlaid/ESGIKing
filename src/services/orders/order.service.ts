@@ -5,6 +5,7 @@ import {RestaurantService} from "../restaurant.service";
 import {ReductionService} from "../reduction.service";
 import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
+import {ReductionModel, ReductionProps} from "../../models/reduction.model";
 
 
 
@@ -80,9 +81,17 @@ export class OrderService {
 
     private static async computeOrderAmount(Order: OrderWithoutId) {
         let amount = 0;
+        let reduction = null;
         for (const elm of Order.products!) {
             const product = await ProductModel.findById(elm)
-            amount += product.price;
+            if(product)
+                reduction = await ReductionModel.findOne({
+                    status: 1,
+                    restaurant: Order.restaurant,
+                    product: product._id,
+                });
+
+            amount += (product.price - (product.price * (reduction.amount / 100)));
         }
         return amount;
     }
