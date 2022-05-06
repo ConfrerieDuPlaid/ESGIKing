@@ -44,6 +44,9 @@ export class MenuService {
 
         const newMenu = await model.save()
         if(newMenu){
+            const restaurant = await RestaurantModel.findById(Menu.restaurant!).exec();
+            restaurant.menus = newMenu._id;
+            restaurant.save();
             return newMenu
         }else {
             return false;
