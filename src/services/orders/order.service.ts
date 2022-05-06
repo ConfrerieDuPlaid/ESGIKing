@@ -6,6 +6,7 @@ import {ReductionService} from "../reduction.service";
 import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
 import {ReductionModel, ReductionProps} from "../../models/reduction.model";
+import {MenuModel} from "../../models/menus/menu.model";
 
 
 
@@ -74,7 +75,19 @@ export class OrderService {
             }
         })
 
-        return productIsInTheRestaurant != 0;
+        const menusRestaurant = await MenuModel.find({
+            restaurantId: Order.restaurant
+        })
+
+        let menuIsInTheRestaurant = 1;
+        Order.menus!.forEach(elm => {
+            if(!menusRestaurant!.includes(elm)){
+                menuIsInTheRestaurant = 0;
+                return ;
+            }
+        })
+
+        return productIsInTheRestaurant && menuIsInTheRestaurant;
 
     }
 
