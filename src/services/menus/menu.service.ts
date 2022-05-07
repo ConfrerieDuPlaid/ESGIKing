@@ -2,6 +2,9 @@
 import {MenuModel, MenuProps} from "../../models/menus/menu.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
+import {RestaurantModel} from "../../models";
+import {AuthService} from "../auth.service";
+import {Status} from "./menu.status";
 
 
 
@@ -10,6 +13,7 @@ type MenuWithoutId = Partial<MenuProps>
 export class MenuService {
 
     private static instance: MenuService
+
 
     public static getInstance (): MenuService {
         if (MenuService.instance === undefined) {
@@ -20,9 +24,9 @@ export class MenuService {
 
     private constructor() { }
 
-    public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<Boolean> {
+    public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<MenuProps | Boolean> {
 
-        const verifyIfRightParameters = await this.verifyMenuMandatory(Menu, authToken)
+        const verifyIfRightParameters = await this.verificationOnMenu(Menu, authToken)
         if(!verifyIfRightParameters) {
             return false;
         }
@@ -36,13 +40,21 @@ export class MenuService {
             restaurant: Menu.restaurant,
             products: Menu.products,
             amount: Menu.amount,
-            status: 1
+            status: Status[1],
         })
-        const newMenu = model.save()
-        return !!newMenu;
+
+        const newMenu = await model.save()
+        if(newMenu){
+            const restaurant = await RestaurantModel.findById(Menu.restaurant!).exec();
+            restaurant.menus = newMenu._id;
+            restaurant.save();
+            return newMenu
+        }else {
+            return false;
+        }
     }
 
-    private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
+    private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
         const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
@@ -55,18 +67,18 @@ export class MenuService {
         if(!isAdmin){
             return false;
         }
-        let isFalse = 0;
-        Menu.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
-                isFalse = 1;
+
+        let productIsInTheRestaurant = true;
+        Menu.products!.forEach(productId => {
+            if(!restaurant.products!.includes(productId)){
+                productIsInTheRestaurant = false;
                 return ;
             }
         })
-        if(isFalse == 1){
-            return false;
-        }
 
-        return true;
+        return productIsInTheRestaurant;
+
+
     }
 
     async updateMenu(menu: Partial<MenuProps>, menuId: string, restaurantId: string, authToken: string): Promise<Boolean> {

@@ -15,6 +15,12 @@ const restaurantSchema = new Schema({
         ref: "Product",
         required: false,
 
+    }],
+    menus: [{
+        type: Schema.Types.ObjectId,
+        ref: "menu",
+        required: false,
+
     }]
     //Menus
 }, {
@@ -28,6 +34,7 @@ export interface RestaurantProps {
     name: string
     address: string
     products?: string[]
+    menus?: string[]
 }
 
 export type RestaurantDocument = RestaurantProps & Document
