@@ -22,6 +22,7 @@ export class RestaurantService {
     private constructor() { }
 
     public async verifyAdminRestaurant(restaurant: string, authToken: string): Promise<Boolean> {
+
         const staff = await StaffModel.findOne({
             restaurantID: restaurant
         }).exec()
@@ -29,7 +30,6 @@ export class RestaurantService {
         const currentUser = await UserModel.findOne({
             sessions: authToken
         }).exec()
-
 
         if(currentUser._id.toString() != staff.userID.toString()){
             return false;

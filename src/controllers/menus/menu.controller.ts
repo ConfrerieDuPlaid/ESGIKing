@@ -14,6 +14,7 @@ export class MenuController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
         router.put('/', express.json(), this.createMenu.bind(this))
+        router.patch('/:restaurantId', express.json(), this.updateMenu.bind(this))
         return router
     }
 
@@ -36,5 +37,15 @@ export class MenuController extends DefaultController{
         }, 201);
     }
 
+    async updateMenu(req: Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            const authToken = getAuthorization(req);
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
+            const res: Boolean = await this.menuService.updateMenu(req.body, req.body.menuId, req.params.restaurantId, authToken);
+            if(!res){
+                throw new ErrorResponse("The menu cannot be update", 500)
+            }
+        }, 201);
+    }
 
 }
