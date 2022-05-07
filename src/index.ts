@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import {AuthController, ProductsController, RestaurantController, StaffController} from "./controllers/"
 import {ReductionController} from "./controllers/reduction.controller";
+import {MenuController} from "./controllers/menus/menu.controller";
 
 config()
 
@@ -43,6 +44,8 @@ async function startServer (): Promise<void> {
     const reductionController = new ReductionController()
     app.use('/reduction', reductionController.buildRoutes());
 
+    const menuController = new MenuController();
+    app.use('/menu', menuController.buildRoutes());
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);
