@@ -81,7 +81,7 @@ export class OrderService {
 
         let menuIsInTheRestaurant = 1;
         Order.menus!.forEach(elm => {
-            if(!menusRestaurant!.includes(elm)){
+            if(!restaurant.menus!.includes(elm)){
                 menuIsInTheRestaurant = 0;
                 return ;
             }
