@@ -22,7 +22,7 @@ export class MenuController extends DefaultController{
     async getAllMenu(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
-            const menus = await this.menuService.getAllReduction();
+            const menus = await this.menuService.getAllMenu();
             return menus.map(menu => MenuResponseAdapter.adapt(menu))
 
         }, 201);

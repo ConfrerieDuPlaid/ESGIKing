@@ -106,7 +106,7 @@ export class MenuService {
         return true;
     }
 
-    async getAllReduction(): Promise<MenuProps[]> {
+    async getAllMenu(): Promise<MenuProps[]> {
         return await MenuModel.find().exec();
     }
 }
