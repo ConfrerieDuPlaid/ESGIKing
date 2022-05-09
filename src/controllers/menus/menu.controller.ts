@@ -16,6 +16,7 @@ export class MenuController extends DefaultController{
         router.get('/:menuId', this.getMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
         router.patch('/:restaurantId', express.json(), this.updateMenu.bind(this))
+        router.delete('/:menuId', this.deleteMenu.bind(this))
         return router
     }
 
@@ -60,4 +61,12 @@ export class MenuController extends DefaultController{
         }, 201);
     }
 
+    async deleteMenu (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            const authToken = getAuthorization(req);
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
+            const res: boolean = await MenuService.getInstance().deactivateMenu(req.params.menuId)
+            if (!res) throw new ErrorResponse("An error occurred", 500)
+        }, 204)
+    }
 }
