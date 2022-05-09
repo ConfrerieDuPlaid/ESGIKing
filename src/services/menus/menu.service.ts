@@ -25,16 +25,18 @@ export class MenuService {
     private constructor() { }
 
     public async getMenu (menuId: string): Promise<MenuDocument | null> {
-        // Vérifier si admin du resto
         return MenuModel.findById(menuId).exec()
     }
 
-    public async deactivateMenu (menuId: string): Promise<boolean> {
-        // Vérifier si admin du resto
+    public async deactivateMenu (menuId: string, authToken: string): Promise<boolean> {
         const menu: MenuDocument | null = await this.getMenu(menuId)
         if (menu === null) {
             throw new ErrorResponse("Menu not found", 404)
         }
+
+        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(menu.restaurant!, authToken);
+        if(!isAdmin) return false
+
         menu.status = Status[0]
         await menu.save()
         return true

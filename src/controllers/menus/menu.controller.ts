@@ -65,7 +65,7 @@ export class MenuController extends DefaultController{
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
             await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
-            const res: boolean = await MenuService.getInstance().deactivateMenu(req.params.menuId)
+            const res: boolean = await MenuService.getInstance().deactivateMenu(req.params.menuId, authToken)
             if (!res) throw new ErrorResponse("An error occurred", 500)
         }, 204)
     }
