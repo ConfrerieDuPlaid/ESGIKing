@@ -4,7 +4,7 @@ import {ErrorResponse, getAuthorization} from "../../utils";
 import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {MenuService} from "../../services/menus/menu.service";
-import {MenuProps} from "../../models/menus/menu.model";
+import {MenuDocument, MenuProps} from "../../models/menus/menu.model";
 
 export class MenuController extends DefaultController{
 
@@ -13,9 +13,22 @@ export class MenuController extends DefaultController{
 
     buildRoutes (): Router {
         const router = express.Router()
+        router.get('/:menuId', this.getMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
         router.patch('/:restaurantId', express.json(), this.updateMenu.bind(this))
         return router
+    }
+
+    async getMenu (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            const authToken = getAuthorization(req)
+            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker); //À MODIFIER POUR RAJOUTER L'ADMIN QUAND LA PR AURA ÉTÉ VALIDÉE
+            const res: MenuDocument | null = await MenuService.getInstance().getMenu(req.params.menuId)
+            if (res === null) {
+                throw new ErrorResponse("Not found", 404)
+            }
+            return res //TO PASS BY ADAPTER
+        }, 200)
     }
 
 
@@ -31,9 +44,8 @@ export class MenuController extends DefaultController{
                 }, authToken);
             if(!res || res == false){
                 throw new ErrorResponse("The menu cannot be added to the restaurant", 500)
-            }else{
-                return res;
             }
+            return res
         }, 201);
     }
 
