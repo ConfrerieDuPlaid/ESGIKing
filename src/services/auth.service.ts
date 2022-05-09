@@ -4,6 +4,7 @@ import {SessionDocument, SessionModel, UserDocument, UserModel, UserProps} from 
 import {DateUtils, ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
 import {Request} from "express";
 import {Roles} from "../utils/roles";
+import {Schema} from "mongoose";
 
 
 type UserWithoutId = Partial<UserProps>
@@ -83,5 +84,11 @@ export class AuthService {
         user.sessions.push(session._id)
         user.save()
         return session
+    }
+
+    public async getUserIdByAuthToken (userAuth: string): Promise<string | null> {
+        const session = await SessionModel.findById(userAuth).exec()
+        if (!session) return null
+        return session.user
     }
 }

@@ -5,6 +5,8 @@ import {RestaurantService} from "../restaurant.service";
 import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
+import {StaffService} from "../staff.service";
+import {Schema} from "mongoose";
 
 
 
@@ -24,8 +26,16 @@ export class MenuService {
 
     private constructor() { }
 
-    public async getMenu (menuId: string): Promise<MenuDocument | null> {
-        return MenuModel.findById(menuId).exec()
+    public async getMenu (menuId: string, authToken: string): Promise<MenuDocument | null> {
+        const menu: MenuDocument | null = await MenuModel.findById(menuId).exec()
+        if (menu === null) {
+            throw new ErrorResponse("Menu not found", 404)
+        }
+
+        const isInRestaurant: string | null = await AuthService.getInstance().getUserIdByAuthToken(authToken)
+        if(!isInRestaurant) return null
+
+        return menu
     }
 
     public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<MenuProps | Boolean> {
