@@ -20,6 +20,10 @@ const MenuSchema = new Schema({
     status: {
         type: Schema.Types.String,
         required: true
+    },
+    spotlight: {
+        type: Schema.Types.Boolean,
+        default: false
     }
 }, {
     collection: "menu",
@@ -34,6 +38,7 @@ export interface MenuProps {
     products: string[];
     amount: number;
     status: string;
+    spotlight: boolean;
 }
 
 export type MenuDocument = MenuProps & Document

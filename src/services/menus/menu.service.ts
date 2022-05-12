@@ -5,8 +5,6 @@ import {RestaurantService} from "../restaurant.service";
 import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
-import {StaffService} from "../staff.service";
-import {Schema} from "mongoose";
 
 
 
@@ -71,6 +69,7 @@ export class MenuService {
             amount: Menu.amount,
             status: Status[1],
         })
+        if (Menu.spotlight) model.spotlight = Menu.spotlight
 
         const newMenu = await model.save()
         if(newMenu){
@@ -142,6 +141,10 @@ export class MenuService {
 
         if(menu.products && menu.products.length > 0){
             updateMenu.products = menu.products;
+        }
+
+        if (menu.spotlight) {
+            updateMenu.spotlight = menu.spotlight
         }
         updateMenu.save()
         return true;
