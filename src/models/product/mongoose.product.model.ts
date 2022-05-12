@@ -14,6 +14,10 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: false,
         ref: "Reduction"
+    },
+    spotlight: {
+        type: Schema.Types.Boolean,
+        default: false
     }
 }, {
     collection: 'products',
@@ -26,6 +30,7 @@ export interface MongooseProductProps {
     name: string;
     price: number;
     reduction?: string;
+    spotlight: boolean;
 }
 
 export type ProductDocument = MongooseProductProps & Document;

@@ -8,7 +8,8 @@ export class ProductAdapter {
             id: new ProductId(source._id),
             name: source.name,
             price: +source.price,
-            reduction: source.reduction!
+            reduction: source.reduction!,
+            spotlight: source.spotlight
         })
     }
 }
