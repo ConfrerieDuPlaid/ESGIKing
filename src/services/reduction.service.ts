@@ -39,7 +39,7 @@ export class ReductionService{
             restaurant: reduction.restaurant,
             product: reduction.product,
             amount: reduction.amount,
-            status: 1
+            status: "active"
         })
 
         if(existingReduction){
@@ -51,7 +51,7 @@ export class ReductionService{
             restaurant: reduction.restaurant,
             product: reduction.product,
             amount: reduction.amount,
-            status: 1,
+            status: "active",
         })
         newReductionModel.save();
         return true;
@@ -82,9 +82,8 @@ export class ReductionService{
         if(reductionBody.amount){
             reduction.amount = reductionBody.amount
         }
-        if(reductionBody.status && (reductionBody.status!.toString() == "0" || reductionBody.status!.toString() == "1")){
+        if(reductionBody.status && (reductionBody.status! == "deactivated" || reductionBody.status! == "active")){
             reduction.status =  reductionBody.status
-
         }
 
         reduction.save()
