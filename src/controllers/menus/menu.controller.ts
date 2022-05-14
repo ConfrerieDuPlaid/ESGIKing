@@ -25,11 +25,11 @@ export class MenuController extends DefaultController{
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req)
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker); //À MODIFIER POUR RAJOUTER L'ADMIN QUAND LA PR AURA ÉTÉ VALIDÉE
-            const res: MenuDocument | null = await MenuService.getInstance().getMenu(req.params.menuId, authToken)
-            if (res === null) {
+            const menu: MenuDocument | null = await MenuService.getInstance().getMenu(req.params.menuId, authToken)
+            if (menu === null) {
                 throw new ErrorResponse("Not found", 404)
             }
-            return res //TO PASS BY ADAPTER
+            return MenuResponseAdapter.adapt(menu)
         }, 200)
     }
 
