@@ -4,6 +4,7 @@ import {ErrorResponse, getAuthorization} from "../../utils";
 import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {MenuService} from "../../services/menus/menu.service";
+import {MenuProps} from "../../models/menus/menu.model";
 
 export class MenuController extends DefaultController{
 
@@ -22,14 +23,16 @@ export class MenuController extends DefaultController{
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
             await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
-            const res: Boolean = await this.menuService.createMenu({
+            const res: MenuProps | Boolean = await this.menuService.createMenu({
                     name: req.body.name,
                     restaurant: req.body.restaurant,
                     products: req.body.products,
                     amount: +req.body.amount
                 }, authToken);
-            if(!res){
+            if(!res || res == false){
                 throw new ErrorResponse("The menu cannot be added to the restaurant", 500)
+            }else{
+                return res;
             }
         }, 201);
     }
@@ -37,7 +40,7 @@ export class MenuController extends DefaultController{
     async updateMenu(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
-            //await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
+            await AuthService.getInstance().verifyPermissions(req, Roles.Admin);
             const res: Boolean = await this.menuService.updateMenu(req.body, req.body.menuId, req.params.restaurantId, authToken);
             if(!res){
                 throw new ErrorResponse("The menu cannot be update", 500)
