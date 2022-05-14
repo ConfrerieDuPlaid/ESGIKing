@@ -142,20 +142,23 @@ export class MenuService {
             return false;
         }
 
-        if(!isAdmin){
+        if (!isAdmin) {
             return false;
         }
         let isFalse = 0;
         Menu.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
+            if (!restaurant.products!.includes(elm)) {
                 isFalse = 1;
-                return ;
+                return;
             }
         })
-        if(isFalse == 1){
+        if (isFalse == 1) {
             return false;
         }
 
         return true;
+    }
+    async getAllMenu(): Promise<MenuProps[]> {
+        return await MenuModel.find().exec();
     }
 }

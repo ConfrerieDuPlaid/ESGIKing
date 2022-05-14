@@ -5,6 +5,7 @@ import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {MenuService} from "../../services/menus/menu.service";
 import {MenuDocument, MenuProps} from "../../models/menus/menu.model";
+import {MenuResponseAdapter} from "./menu.response.adapter";
 
 export class MenuController extends DefaultController{
 
@@ -14,6 +15,7 @@ export class MenuController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
         router.get('/:menuId', this.getMenu.bind(this))
+        router.get('/', express.json(), this.getAllMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
         router.patch('/:menuId', express.json(), this.updateMenu.bind(this))
         return router
@@ -31,6 +33,14 @@ export class MenuController extends DefaultController{
         }, 200)
     }
 
+    async getAllMenu(req : Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
+            const menus = await this.menuService.getAllMenu();
+            return menus.map(menu => MenuResponseAdapter.adapt(menu))
+
+        }, 201);
+    }
 
     async createMenu(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
