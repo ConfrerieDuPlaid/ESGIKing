@@ -24,7 +24,7 @@ export class MenuController extends DefaultController{
     async getMenu (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req)
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker); //À MODIFIER POUR RAJOUTER L'ADMIN QUAND LA PR AURA ÉTÉ VALIDÉE
+            await AuthService.getInstance().verifyPermissions(req, [Roles.OrderPicker, Roles.Admin]); //À MODIFIER POUR RAJOUTER L'ADMIN QUAND LA PR AURA ÉTÉ VALIDÉE
             const menu: MenuDocument | null = await MenuService.getInstance().getMenu(req.params.menuId, authToken)
             if (menu === null) {
                 throw new ErrorResponse("Not found", 404)

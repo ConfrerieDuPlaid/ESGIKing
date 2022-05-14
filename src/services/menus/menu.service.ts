@@ -32,8 +32,9 @@ export class MenuService {
             throw new ErrorResponse("Menu not found", 404)
         }
 
-        const isInRestaurant: string | null = await AuthService.getInstance().getUserIdByAuthToken(authToken)
-        if(!isInRestaurant) return null
+        const userId: string = await AuthService.getInstance().getUserIdByAuthToken(authToken)
+        const isInRestaurant: boolean = await StaffService.getInstance().userIsAssignedToRestaurant(userId)
+        if(!isInRestaurant) throw new ErrorResponse("You can't access this ressource", 406)
 
         return menu
     }
