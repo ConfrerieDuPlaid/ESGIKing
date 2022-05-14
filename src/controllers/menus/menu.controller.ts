@@ -15,7 +15,7 @@ export class MenuController extends DefaultController{
         const router = express.Router()
         router.get('/:menuId', this.getMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
-        router.patch('/:restaurantId', express.json(), this.updateMenu.bind(this))
+        router.patch('/:menuId', express.json(), this.updateMenu.bind(this))
         return router
     }
 
