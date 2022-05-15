@@ -98,7 +98,7 @@ export class AuthService {
 
     public async getUserIdByAuthToken (userAuth: string): Promise<string> {
         const session = await SessionModel.findById(userAuth).exec()
-        if (!session) throw new ErrorResponse("User found", 404)
+        if (!session) throw new ErrorResponse("User not found", 404)
         return session.user
     }
 }
