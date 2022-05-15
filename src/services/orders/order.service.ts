@@ -66,15 +66,15 @@ export class OrderService {
             }
         }
 
-        let productIsInTheRestaurant = 1;
+        let productIsInTheRestaurant = true;
         Order.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
-                productIsInTheRestaurant = 0;
+                productIsInTheRestaurant = false;
                 return ;
             }
         })
 
-        return productIsInTheRestaurant != 0;
+        return productIsInTheRestaurant;
 
     }
 
