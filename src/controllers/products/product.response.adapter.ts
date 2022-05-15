@@ -7,7 +7,7 @@ export class ProductResponseAdapter {
           id: product.id.value,
           name: product.name,
           price: product.price,
-          reduction: reduction
+          reduction: product.reduction
         };
     }
 }
