@@ -4,7 +4,7 @@ import {ErrorResponse, getAuthorization} from "../../utils";
 import {AuthService} from "../../services";
 import {Roles} from "../../utils/roles";
 import {OrderService} from "../../services/orders/order.service";
-import {OrderProps} from "../../models/orders/order.model";
+import {OrderDocument, OrderProps} from "../../models/orders/order.model";
 import {OrderStatus} from "../../services/orders/order.status";
 
 export class OrderController extends DefaultController{
@@ -16,6 +16,7 @@ export class OrderController extends DefaultController{
         const router = express.Router()
         router.put('/', express.json(), this.createOrder.bind(this))
         router.patch('/:restaurantId', express.json(), this.updateOrder.bind(this))
+        router.get('/:restaurantId', express.json(), this.getOrderByRestaurantId.bind(this))
         return router
     }
 
@@ -31,6 +32,18 @@ export class OrderController extends DefaultController{
                 menus: req.body.menus ? req.body.menus : null,
                 reductionId: req.body.reduction ? req.body.reduction : null,
             });
+            if(!res){
+                throw new ErrorResponse("The order cannot be placed", 500)
+            }else{
+                return res;
+            }
+        }, 201);
+    }
+
+    async getOrderByRestaurantId(req: Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+            const res: OrderDocument[] = await this.orderService.getOrderByRestaurantId(req.params.restaurantId);
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
             }else{
