@@ -20,6 +20,10 @@ export class ProductsService {
         return await this.repository.getAll(orderParam);
     }
 
+    async getOneProductById(productId: string) {
+        return await this.repository.getById(productId)
+    }
+
     async createProduct(dto: ProductWithoutId): Promise<Product> {
         if(!dto.name || !dto.price) {
             throw new ErrorResponse('Name or Price missing', 400);
