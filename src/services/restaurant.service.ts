@@ -21,22 +21,26 @@ export class RestaurantService {
 
     private constructor() { }
 
-    public async verifyStaffRestaurant(restaurant: string, authToken: string, role: string = "admin"): Promise<Boolean> {
+    public async verifyStaffRestaurant(restaurant: string, authToken: string, role: string = "Admin"): Promise<Boolean> {
 
-        const staff = await StaffModel.findOne({
+        const staffs = await StaffModel.find({
             restaurantID: restaurant,
             role: role
         }).exec()
+
 
         const currentUser = await UserModel.findOne({
             sessions: authToken
         }).exec()
 
-        if(currentUser._id.toString() != staff.userID.toString()){
-            return false;
+
+        for (let index = 0; index < staffs.length; index++) {
+            if(currentUser._id.toString() == staffs[index].userID.toString()){
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     public async createRestaurant (restaurant: RestaurantWithoutId): Promise<RestaurantDocument> {
