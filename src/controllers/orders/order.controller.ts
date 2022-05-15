@@ -22,7 +22,7 @@ export class OrderController extends DefaultController{
 
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
             const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: OrderStatus[0],
                 restaurant: req.body.restaurant,
