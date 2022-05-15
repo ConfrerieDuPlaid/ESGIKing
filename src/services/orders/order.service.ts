@@ -67,19 +67,19 @@ export class OrderService {
             }
         }
 
-        let productIsInTheRestaurant = 1;
+        let productIsInTheRestaurant = true;
         Order.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
-                productIsInTheRestaurant = 0;
+                productIsInTheRestaurant = false;
                 return ;
             }
         })
 
 
-        let menuIsInTheRestaurant = 1;
+        let menuIsInTheRestaurant = true;
         Order.menus!.forEach(elm => {
             if(!restaurant.menus!.includes(elm)){
-                menuIsInTheRestaurant = 0;
+                menuIsInTheRestaurant = false;
                 return ;
             }
         })
