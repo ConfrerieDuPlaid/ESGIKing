@@ -75,9 +75,6 @@ export class OrderService {
             }
         })
 
-        const menusRestaurant = await MenuModel.find({
-            restaurantId: Order.restaurant
-        })
 
         let menuIsInTheRestaurant = 1;
         Order.menus!.forEach(elm => {
@@ -86,7 +83,6 @@ export class OrderService {
                 return ;
             }
         })
-
         return productIsInTheRestaurant && menuIsInTheRestaurant;
 
     }
@@ -95,17 +91,25 @@ export class OrderService {
     private static async computeOrderAmount(Order: OrderWithoutId) {
         let amount = 0;
         let reduction = null;
+        let price;
         for (const elm of Order.products!) {
             const product = await ProductModel.findById(elm)
-            if(product)
+            if (product)
                 reduction = await ReductionModel.findOne({
                     status: 1,
                     restaurant: Order.restaurant,
                     product: product._id,
                 });
-
-            amount += (product.price - (product.price * (reduction.amount / 100)));
+            price = !reduction ? product.price : product.price - (product.price * (reduction.amount / 100));
+            amount += price;
         }
+
+        for (const elm of Order.menus!) {
+            const menu = await MenuModel.findById(elm)
+            if(menu)
+                amount += menu.amount;
+        }
+
         return amount;
     }
 }
