@@ -57,7 +57,7 @@ export class MenuService {
     private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
 
 
         if (!restaurant) {
@@ -120,7 +120,7 @@ export class MenuService {
     private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
 
 
         if (!restaurant) {

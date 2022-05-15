@@ -42,8 +42,9 @@ export class OrderController extends DefaultController{
 
     async getOrderByRestaurantId(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
-            const res: OrderDocument[] = await this.orderService.getOrderByRestaurantId(req.params.restaurantId);
+            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            const authToken = getAuthorization(req);
+            const res: OrderDocument[] = await this.orderService.getOrderByRestaurantId(req.params.restaurantId, authToken);
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
             }else{

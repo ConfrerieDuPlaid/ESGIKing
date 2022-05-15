@@ -21,10 +21,11 @@ export class RestaurantService {
 
     private constructor() { }
 
-    public async verifyAdminRestaurant(restaurant: string, authToken: string): Promise<Boolean> {
+    public async verifyStaffRestaurant(restaurant: string, authToken: string, role: string = "admin"): Promise<Boolean> {
 
         const staff = await StaffModel.findOne({
-            restaurantID: restaurant
+            restaurantID: restaurant,
+            role: role
         }).exec()
 
         const currentUser = await UserModel.findOne({
@@ -83,7 +84,7 @@ export class RestaurantService {
         if(!restaurant){
             return false;
         }
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(restaurantID, authToken)
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantID, authToken)
 
         if(!isAdmin){
             throw new ErrorResponse("You're not the admin", 401)

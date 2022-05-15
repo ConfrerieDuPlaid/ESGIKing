@@ -96,10 +96,14 @@ export class OrderService {
         return amount;
     }
 
-    async getOrderByRestaurantId(restaurantId: string) : Promise<OrderDocument[]> {
-        return await OrderModel.find({
-            restaurant: restaurantId,
-            status: "created"
-        });
+    async getOrderByRestaurantId(restaurantId: string, authToken: string) : Promise<OrderDocument[]> {
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
+        if(isAdmin)
+            return await OrderModel.find({
+                restaurant: restaurantId,
+                status: "created"
+            });
+
+        throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 }
