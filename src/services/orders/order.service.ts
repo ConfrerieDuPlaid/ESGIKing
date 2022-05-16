@@ -1,5 +1,5 @@
 
-import {OrderModel, OrderProps} from "../../models/orders/order.model";
+import {OrderDocument, OrderModel, OrderProps} from "../../models/orders/order.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
 import {ReductionService} from "../reduction.service";
@@ -94,5 +94,18 @@ export class OrderService {
             amount += (product.price - (product.price * (reduction.amount / 100)));
         }
         return amount;
+
+
+    }
+
+    async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
+        if(isAdmin)
+            return await OrderModel.find({
+                restaurant: restaurantId,
+                status: status
+            });
+
+        throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 }

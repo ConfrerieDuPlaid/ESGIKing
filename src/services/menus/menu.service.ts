@@ -57,7 +57,7 @@ export class MenuService {
     private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
 
 
         if (!restaurant) {
@@ -115,6 +115,32 @@ export class MenuService {
             updateMenu.products = menu.products;
         }
         updateMenu.save()
+        return true;
+    }
+    private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
+
+        const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
+
+
+        if (!restaurant) {
+            return false;
+        }
+
+        if(!isAdmin){
+            return false;
+        }
+        let isFalse = 0;
+        Menu.products!.forEach(elm => {
+            if(!restaurant.products!.includes(elm)){
+                isFalse = 1;
+                return ;
+            }
+        })
+        if(isFalse == 1){
+            return false;
+        }
+
         return true;
     }
 }
