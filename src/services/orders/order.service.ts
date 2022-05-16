@@ -6,6 +6,7 @@ import {ReductionService} from "../reduction.service";
 import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
 import {ReductionModel, ReductionProps} from "../../models/reduction.model";
+import {MenuModel} from "../../models/menus/menu.model";
 
 
 
@@ -66,15 +67,23 @@ export class OrderService {
             }
         }
 
-        let productIsInTheRestaurant = 1;
+        let productIsInTheRestaurant = true;
         Order.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
-                productIsInTheRestaurant = 0;
+                productIsInTheRestaurant = false;
                 return ;
             }
         })
 
-        return productIsInTheRestaurant != 0;
+
+        let menuIsInTheRestaurant = true;
+        Order.menus!.forEach(elm => {
+            if(!restaurant.menus!.includes(elm)){
+                menuIsInTheRestaurant = false;
+                return ;
+            }
+        })
+        return productIsInTheRestaurant && menuIsInTheRestaurant;
 
     }
 
@@ -82,17 +91,25 @@ export class OrderService {
     private static async computeOrderAmount(Order: OrderWithoutId) {
         let amount = 0;
         let reduction = null;
+        let price;
         for (const elm of Order.products!) {
             const product = await ProductModel.findById(elm)
-            if(product)
+            if (product)
                 reduction = await ReductionModel.findOne({
                     status: 1,
                     restaurant: Order.restaurant,
                     product: product._id,
                 });
-
-            amount += (product.price - (product.price * (reduction.amount / 100)));
+            price = !reduction ? product.price : product.price - (product.price * (reduction.amount / 100));
+            amount += price;
         }
+
+        for (const elm of Order.menus!) {
+            const menu = await MenuModel.findById(elm)
+            if(menu)
+                amount += menu.amount;
+        }
+
         return amount;
 
 
