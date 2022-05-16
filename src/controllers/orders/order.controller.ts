@@ -15,8 +15,8 @@ export class OrderController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
         router.put('/', express.json(), this.createOrder.bind(this))
-        router.patch('/:restaurantId', express.json(), this.updateOrder.bind(this))
         router.get('/:restaurantId/status/:status', express.json(), this.getOrdersByRestaurantIdAndStatus.bind(this))
+        router.patch('/:orderId', express.json(), this.updateOrder.bind(this))
         return router
     }
 
@@ -54,7 +54,18 @@ export class OrderController extends DefaultController{
     }
 
     async updateOrder(req: Request, res: Response){
-       throw new ErrorResponse("ToDo", 500);
+        console.log();
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            const authToken = getAuthorization(req);
+            let res: Boolean = false;
+            if(req.query.status){
+                res = await this.orderService.updateOrder(req.params.orderId, req.query.status.toString() , authToken);
+            }
+            if(!res){
+                throw new ErrorResponse("The order cannot be update", 500)
+            }
+        }, 201);
     }
 
 }
