@@ -94,14 +94,16 @@ export class OrderService {
             amount += (product.price - (product.price * (reduction.amount / 100)));
         }
         return amount;
+
+
     }
 
-    async getOrderByRestaurantId(restaurantId: string, authToken: string) : Promise<OrderDocument[]> {
+    async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
         const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
         if(isAdmin)
             return await OrderModel.find({
                 restaurant: restaurantId,
-                status: "created"
+                status: status
             });
 
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);

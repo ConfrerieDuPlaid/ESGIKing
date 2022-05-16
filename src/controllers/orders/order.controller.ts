@@ -16,7 +16,7 @@ export class OrderController extends DefaultController{
         const router = express.Router()
         router.put('/', express.json(), this.createOrder.bind(this))
         router.patch('/:restaurantId', express.json(), this.updateOrder.bind(this))
-        router.get('/:restaurantId', express.json(), this.getOrderByRestaurantId.bind(this))
+        router.get('/:restaurantId/status/:status', express.json(), this.getOrdersByRestaurantIdAndStatus.bind(this))
         return router
     }
 
@@ -40,11 +40,11 @@ export class OrderController extends DefaultController{
         }, 201);
     }
 
-    async getOrderByRestaurantId(req: Request, res: Response){
+    async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
             const authToken = getAuthorization(req);
-            const res: OrderDocument[] = await this.orderService.getOrderByRestaurantId(req.params.restaurantId, authToken);
+            const res: OrderDocument[] = await this.orderService.getOrdersByRestaurantIdAndStatus(req.params.restaurantId, authToken, req.params.status);
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
             }else{
