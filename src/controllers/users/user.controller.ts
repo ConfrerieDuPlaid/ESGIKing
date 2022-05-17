@@ -12,7 +12,6 @@ export class UserController extends DefaultController{
         const router = express.Router()
 
         router.get('/:userId/orders', express.json(), this.getAllOrder.bind(this))
-        //router.get('/:userId/orders/:orderId', express.json(), this.getOrderById.bind(this))
         return router
     }
 
@@ -23,12 +22,5 @@ export class UserController extends DefaultController{
             return await this.userService.getAllOrderOfOneUser(req.query.status!.toString(), req.params.userId, authToken);
         }, 201);
     }
-
-    /*async getOrderById(req : Request, res: Response){
-        await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.Admin)
-            return await this.userService.getReductionById(req.params.reductionId);
-        }, 201);
-    }*/
 
 }
