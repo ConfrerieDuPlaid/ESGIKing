@@ -180,9 +180,9 @@ export class MenuService {
         return true;
     }
 
-    async getAllMenu (filterParams: any): Promise<MenuProps[]> {
+    async getAllMenu (orderParam: any): Promise<MenuProps[]> {
         let order: any = [['spotlight', -1]]
-        if (filterParams.order && filterParams.order === "none") {
+        if (orderParam.order && orderParam.order === "none") {
             order = []
         }
         return await MenuModel.find().sort(order).exec();
