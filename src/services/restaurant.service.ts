@@ -21,21 +21,26 @@ export class RestaurantService {
 
     private constructor() { }
 
-    public async verifyAdminRestaurant(restaurant: string, authToken: string): Promise<Boolean> {
+    public async verifyStaffRestaurant(restaurant: string, authToken: string, role: string = "Admin"): Promise<Boolean> {
 
-        const staff = await StaffModel.findOne({
-            restaurantID: restaurant
+        const staffs = await StaffModel.find({
+            restaurantID: restaurant,
+            role: role
         }).exec()
+
 
         const currentUser = await UserModel.findOne({
             sessions: authToken
         }).exec()
 
-        if(currentUser._id.toString() != staff.userID.toString()){
-            return false;
+
+        for (let index = 0; index < staffs.length; index++) {
+            if(currentUser._id.toString() == staffs[index].userID.toString()){
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     public async createRestaurant (restaurant: RestaurantWithoutId): Promise<RestaurantDocument> {
@@ -83,7 +88,7 @@ export class RestaurantService {
         if(!restaurant){
             return false;
         }
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(restaurantID, authToken)
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantID, authToken)
 
         if(!isAdmin){
             throw new ErrorResponse("You're not the admin", 401)

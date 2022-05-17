@@ -25,7 +25,7 @@ export class ReductionService{
             return false;
         }
 
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(reduction.restaurant!, authToken)
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(reduction.restaurant!, authToken)
 
         if(!isAdmin){
             throw new ErrorResponse("You're not the admin", 401)
