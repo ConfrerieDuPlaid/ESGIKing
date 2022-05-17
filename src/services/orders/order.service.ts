@@ -127,10 +127,10 @@ export class OrderService {
     }
 
     async updateOrder(orderId: string, newStatus: string , authToken: string): Promise<Boolean> {
-        const order = await OrderModel.findOne({_id: orderId}).exec();
+         const order = await OrderModel.findOne({_id: orderId}).exec();
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && newStatus == "inProgress" && order.status == "created"){
+        if(isOrderPicker && (newStatus == "inProgress" && order.status == "created") || (newStatus == "done" && order.status == "inProgress")){
             order.status = newStatus;
             return await order.save() !== null;
         }
