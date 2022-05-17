@@ -1,6 +1,6 @@
 import {Product} from "./product";
 
 export interface ProductRepository {
-    getAll():Promise<Product[]>;
+    getAll(orderParam: any):Promise<Product[]>;
     create(product: Product): Promise<Product>;
 }

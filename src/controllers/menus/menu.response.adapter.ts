@@ -19,8 +19,7 @@ export class MenuResponseAdapter {
             amount: menu.amount,
             restaurant: restaurant,
             products: linkToProduct,
-            status: menu.status,
-            spotlight: menu.spotlight
+            status: menu.status
         };
     }
 }

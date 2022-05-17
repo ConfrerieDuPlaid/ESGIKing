@@ -15,8 +15,8 @@ export class ProductsService {
         return ProductsService.instance
     }
 
-    async getAllProducts(): Promise<Product[]> {
-        return await this.repository.getAll();
+    async getAllProducts (orderParam: any): Promise<Product[]> {
+        return await this.repository.getAll(orderParam);
     }
 
     async createProduct(dto: ProductWithoutId): Promise<Product> {
