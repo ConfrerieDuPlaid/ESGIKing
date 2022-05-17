@@ -125,4 +125,10 @@ export class OrderService {
 
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
+
+    async getOrdersByStatus(status: string, userId: string, authToken: string){
+        return await OrderModel.find({
+            status: status
+        }).exec();
+    }
 }
