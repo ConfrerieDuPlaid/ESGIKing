@@ -40,7 +40,8 @@ export class OrderService {
             reductionId: Order.reductionId,
             products: Order.products,
             amount: amoutOfOrder,
-            status: OrderStatus[0]
+            status: OrderStatus[0],
+            customer: Order.customer
         })
 
         const newOrder = await model.save();
@@ -128,7 +129,8 @@ export class OrderService {
 
     async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string){
         return await OrderModel.find({
-            status: status
+            status: status,
+            customer: userId
         }).exec();
     }
 }
