@@ -5,6 +5,7 @@ import {RestaurantService} from "../restaurant.service";
 import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
+import {StaffService} from "../staff.service";
 
 
 
@@ -179,7 +180,11 @@ export class MenuService {
         return true;
     }
 
-    async getAllMenu(): Promise<MenuProps[]> {
-        return await MenuModel.find().exec();
+    async getAllMenu (filterParams: any): Promise<MenuProps[]> {
+        let order: any = [['spotlight', -1]]
+        if (filterParams.order && filterParams.order === "none") {
+            order = []
+        }
+        return await MenuModel.find().sort(order).exec();
     }
 }
