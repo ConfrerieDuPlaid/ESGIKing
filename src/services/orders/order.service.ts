@@ -130,7 +130,9 @@ export class OrderService {
          const order = await OrderModel.findOne({_id: orderId}).exec();
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && (newStatus == "inProgress" && order.status == "created") || (newStatus == "done" && order.status == "inProgress")){
+        if(isOrderPicker && (newStatus == "inProgress" && order.status == "created")
+            || (newStatus == "done" && order.status == "inProgress")
+            || (newStatus == "onTheWay" && order.status == "inProgress")){
             order.status = newStatus;
             return await order.save() !== null;
         }
