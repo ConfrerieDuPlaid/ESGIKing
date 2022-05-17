@@ -30,10 +30,25 @@ export class MenuService {
             throw new ErrorResponse("Menu not found", 404)
         }
 
-        const isInRestaurant: string | null = await AuthService.getInstance().getUserIdByAuthToken(authToken)
-        if(!isInRestaurant) return null
+        const userId: string = await AuthService.getInstance().getUserIdByAuthToken(authToken)
+        const isInRestaurant: boolean = await StaffService.getInstance().userIsAssignedToRestaurant(userId)
+        if(!isInRestaurant) throw new ErrorResponse("You can't access this ressource", 406)
 
         return menu
+    }
+
+    public async deactivateMenu (menuId: string, authToken: string): Promise<boolean> {
+        const menu: MenuDocument | null = await this.getMenu(menuId, authToken)
+        if (menu === null) {
+            throw new ErrorResponse("Menu not found", 404)
+        }
+
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(menu.restaurant!, authToken);
+        if(!isAdmin) return false
+
+        menu.status = Status[0]
+        await menu.save()
+        return true
     }
 
     public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<MenuProps | Boolean> {
@@ -70,7 +85,7 @@ export class MenuService {
     private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
 
 
         if (!restaurant) {
@@ -135,30 +150,36 @@ export class MenuService {
         return true;
     }
 
+
     private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(Menu.restaurant!, authToken);
 
 
         if (!restaurant) {
             return false;
         }
 
-        if(!isAdmin){
+        if (!isAdmin) {
             return false;
         }
         let isFalse = 0;
         Menu.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
+            if (!restaurant.products!.includes(elm)) {
                 isFalse = 1;
-                return ;
+                return;
             }
         })
-        if(isFalse == 1){
+        if (isFalse == 1) {
+
             return false;
         }
 
         return true;
+    }
+
+    async getAllMenu(): Promise<MenuProps[]> {
+        return await MenuModel.find().exec();
     }
 }
