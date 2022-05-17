@@ -37,7 +37,7 @@ export class UserService {
     }
 
     async getAllOrderOfOneUser(status: string, userId, authToken: string) {
-        const order = await OrderService.getInstance().getOrdersByStatus(status, userId, authToken);
+        const order = await OrderService.getInstance().getOrdersByStatusAndUserId(status, userId, authToken);
         return order;
     }
 }
