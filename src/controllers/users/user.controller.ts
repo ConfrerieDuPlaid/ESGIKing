@@ -11,15 +11,15 @@ export class UserController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
 
-        router.get('/:userId/orders', express.json(), this.getAllOrderOfOneUser.bind(this))
+        router.get('/:userId/orders', express.json(), this.getAllOrderOfOneUserByStatus.bind(this))
         return router
     }
 
-    async getAllOrderOfOneUser(req : Request, res: Response){
+    async getAllOrderOfOneUserByStatus(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.Customer)
             const authToken = getAuthorization(req);
-            return await this.userService.getAllOrderOfOneUser(req.query.status!.toString(), req.params.userId, authToken);
+            return await this.userService.getOrdersByStatusAndUserId(req.query.status!.toString(), req.params.userId, authToken);
         }, 201);
     }
 

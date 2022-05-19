@@ -36,7 +36,7 @@ export class UserService {
         return validRoles.indexOf(user.role.toString()) !== -1
     }
 
-    async getAllOrderOfOneUser(status: string, userId: string, authToken: string) {
+    async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string) {
         const order = await OrderService.getInstance().getOrdersByStatusAndUserId(status, userId, authToken);
         return order;
     }

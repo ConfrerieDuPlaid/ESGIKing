@@ -129,8 +129,6 @@ export class OrderService {
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 
-
-
     async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string){
 
         const isTheRightCustomer = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, userId);
