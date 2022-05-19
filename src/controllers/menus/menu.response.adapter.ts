@@ -1,15 +1,18 @@
 import express, {Request} from "express";
+import {HttpUtils} from "../../utils/http.utils";
+import {MenuProps} from "../../models/menus/menu.model";
 
 export class MenuResponseAdapter {
-    static adapt(menu: any, req: Request) {
+    static adapt(menu: MenuProps, req: Request) {
         let linkToProduct: String[] = [];
-        const restaurant = menu.restaurant ? req.protocol + '://' + req.get('host') + "/restaurant/" + menu.restaurant : "";
+        const restaurant = menu.restaurant
+            ? HttpUtils.getFullUrlOf(req) + menu.restaurant
+            : "";
 
-        if(menu.products.length > 0){
-            menu.products.forEach((product: any) => {
-                linkToProduct.push( req.protocol + '://' + req.get('host') + "/product/" + product.toString())
-            })
-        }
+        menu.products.forEach((product: string) => {
+            linkToProduct.push( HttpUtils.getFullUrlOf(req) + product)
+        })
+
 
         return {
             name: menu.name,
