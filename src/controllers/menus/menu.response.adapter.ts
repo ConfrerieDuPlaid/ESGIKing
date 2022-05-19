@@ -1,11 +1,13 @@
+import express, {Request} from "express";
 
 export class MenuResponseAdapter {
-    static adapt(menu: any) {
+    static adapt(menu: any, req: Request) {
         let linkToProduct: String[] = [];
-        const restaurant = menu.restaurant ? "http://localhost:3001/restaurant/" + menu.restaurant : "";
+        const restaurant = menu.restaurant ? req.protocol + '://' + req.get('host') + "/restaurant/" + menu.restaurant : "";
+
         if(menu.products.length > 0){
             menu.products.forEach((product: any) => {
-                linkToProduct.push("http://localhost:3001/product/" + product.toString())
+                linkToProduct.push( req.protocol + '://' + req.get('host') + "/product/" + product.toString())
             })
         }
 
