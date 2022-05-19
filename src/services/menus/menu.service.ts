@@ -34,7 +34,7 @@ export class MenuService {
 
         const userId: string = await AuthService.getInstance().getUserIdByAuthToken(authToken)
         const isInRestaurant: boolean = await StaffService.getInstance().userIsAssignedToRestaurant(userId)
-        if(!isInRestaurant) throw new ErrorResponse("You can't access this ressource", 406)
+        if(!isInRestaurant) throw new ErrorResponse("You can't access this resource", 406)
 
         return menu
     }
