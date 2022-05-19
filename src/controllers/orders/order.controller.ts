@@ -63,7 +63,7 @@ export class OrderController extends DefaultController{
                 res = await this.orderService.updateOrder(req.params.orderId, req.query.status.toString() , authToken);
             }
             if(!res){
-                throw new ErrorResponse("The order cannot be update", 404)
+                throw new ErrorResponse("The order cannot be update", 400)
             }
         }, 201);
     }

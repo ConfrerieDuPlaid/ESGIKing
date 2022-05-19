@@ -147,10 +147,19 @@ export class OrderService {
             return false;
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && newStatus == "inProgress" && order.status == "created"){
+        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
             order.status = newStatus;
             return await order.save() !== null;
         }
         return false
+    }
+
+    isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
+        const oldToNextStatus: { [oldStatus:string]: string[] } = {
+            "created" : ["inProgress"] ,
+            "inProgress": ["done", "onTheWay"],
+        };
+
+        return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
     }
 }
