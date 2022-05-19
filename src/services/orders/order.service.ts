@@ -127,11 +127,7 @@ export class OrderService {
     }
 
     async updateOrder(orderId: string, newStatus: string , authToken: string): Promise<Boolean> {
-        const statusCompare: any = {
-            "inProgress" : "created",
-            "done" : "inProgress",
-            "onTheWay": "inProgress"
-        }
+
          const order = await OrderModel.findOne({_id: orderId}).exec();
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
@@ -143,7 +139,7 @@ export class OrderService {
     }
 
     isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
-        const oldToNextStatus: { [k:string]: string[] } = {
+        const oldToNextStatus: { [oldStatus:string]: string[] } = {
             "created" : ["inProgress"] ,
             "inProgress": ["done", "onTheWay"],
         };
