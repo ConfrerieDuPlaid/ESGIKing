@@ -25,7 +25,7 @@ export class ReductionService{
             return false;
         }
 
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(reduction.restaurant!, authToken)
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(reduction.restaurant!, authToken)
 
         if(!isAdmin){
             throw new ErrorResponse("You're not the admin", 401)
@@ -35,12 +35,23 @@ export class ReductionService{
             throw new ErrorResponse("Wrong name or price", 400)
         }
 
+        const existingReduction = await ReductionModel.findOne({
+            restaurant: reduction.restaurant,
+            product: reduction.product,
+            amount: reduction.amount,
+            status: "active"
+        })
+
+        if(existingReduction){
+            throw new ErrorResponse("this reduction already exist", 400);
+        }
+
         const newReductionModel = new ReductionModel({
             name: reduction.name,
             restaurant: reduction.restaurant,
             product: reduction.product,
             amount: reduction.amount,
-            status: 1,
+            status: "active",
         })
         newReductionModel.save();
         return true;
@@ -71,9 +82,8 @@ export class ReductionService{
         if(reductionBody.amount){
             reduction.amount = reductionBody.amount
         }
-        if(reductionBody.status && (reductionBody.status!.toString() == "0" || reductionBody.status!.toString() == "1")){
+        if(reductionBody.status && (reductionBody.status! == "deactivated" || reductionBody.status! == "active")){
             reduction.status =  reductionBody.status
-
         }
 
         reduction.save()
