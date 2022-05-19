@@ -28,6 +28,11 @@ const OrderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "reductions",
         required: false,
+    },
+    customer: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: false,
     }
 }, {
     collection: "orders",
@@ -43,6 +48,7 @@ export interface OrderProps {
     amount: number;
     status: string;
     reductionId?: string;
+    customer?: string;
 }
 
 export type OrderDocument = OrderProps & Document

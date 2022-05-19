@@ -5,6 +5,7 @@ import {AuthController, ProductsController, RestaurantController, StaffControlle
 import {ReductionController} from "./controllers/reduction.controller";
 import {MenuController} from "./controllers/menus/menu.controller";
 import {OrderController} from "./controllers/orders/order.controller";
+import {UserController} from "./controllers/users/user.controller";
 
 config()
 
@@ -50,6 +51,9 @@ async function startServer (): Promise<void> {
 
     const orderController = new OrderController()
     app.use('/order', orderController.buildRoutes());
+
+    const userController = new UserController();
+    app.use('/user', userController.buildRoutes());
 
     app.listen(process.env.PORT, () => {
         console.log("Server listening on port " + process.env.PORT);

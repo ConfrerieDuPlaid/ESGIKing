@@ -31,6 +31,7 @@ export class OrderController extends DefaultController{
                 amount: 0,
                 menus: req.body.menus ? req.body.menus : null,
                 reductionId: req.body.reduction ? req.body.reduction : null,
+                customer: req.body.customer ? req.body.customer : null,
             });
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
