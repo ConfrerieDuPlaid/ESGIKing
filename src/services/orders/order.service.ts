@@ -7,6 +7,8 @@ import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
 import {ReductionModel, ReductionProps} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
+import {UserModel} from "../../models";
+import {AuthService} from "../auth.service";
 
 
 
@@ -40,7 +42,8 @@ export class OrderService {
             reductionId: Order.reductionId,
             products: Order.products,
             amount: amoutOfOrder,
-            status: OrderStatus[0]
+            status: OrderStatus[0],
+            customer: Order.customer
         })
 
         const newOrder = await model.save();
@@ -126,9 +129,22 @@ export class OrderService {
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 
-    async updateOrder(orderId: string, newStatus: string , authToken: string): Promise<Boolean> {
+    async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string){
 
-         const order = await OrderModel.findOne({_id: orderId}).exec();
+        const isTheRightCustomer = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, userId);
+        if(!isTheRightCustomer)
+            throw new ErrorResponse("you don't have tight to see this order", 401)
+
+        return await OrderModel.find({
+            status: status,
+            customer: userId
+        }).exec();
+    }
+
+    async updateOrder(orderId: string, newStatus: string , authToken: string): Promise<Boolean> {
+        const order = await OrderModel.findOne({_id: orderId}).exec();
+        if(!order)
+            return false;
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
         if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
