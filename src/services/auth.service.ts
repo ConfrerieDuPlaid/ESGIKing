@@ -88,4 +88,12 @@ export class AuthService {
         user.save()
         return session
     }
+
+    async verifyIfUserRequestedIsTheUserConnected(authToken: string, userId: string) : Promise<Boolean>{
+        const currentUser = await UserModel.findOne({
+            sessions: authToken
+        }).exec();
+
+        return userId == currentUser._id;
+    }
 }

@@ -8,6 +8,7 @@ import {OrderStatus} from "./order.status";
 import {ReductionModel, ReductionProps} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
 import {UserModel} from "../../models";
+import {AuthService} from "../auth.service";
 
 
 
@@ -128,17 +129,11 @@ export class OrderService {
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 
-    async getUserWithAuthToken(authToken: string, userId: string) : Promise<Boolean>{
-        const currentUser = await UserModel.findOne({
-            sessions: authToken
-        }).exec();
 
-        return userId == currentUser._id;
-    }
 
     async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string){
 
-        const isTheRightCustomer = await this.getUserWithAuthToken(authToken, userId);
+        const isTheRightCustomer = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, userId);
         if(!isTheRightCustomer)
             throw new ErrorResponse("you don't have tight to see this order", 401)
 
