@@ -17,7 +17,7 @@ export class ProductsController extends DefaultController {
     async getAllProducts(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const products: Product[] = await this.productService
-                .getAllProducts(req.query)
+                .getAllProducts(req.query.order?.toString())
             return products.map(product => ProductResponseAdapter.adapt(product));
         });
     }
