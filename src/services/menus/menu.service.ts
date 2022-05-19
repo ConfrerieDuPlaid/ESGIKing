@@ -173,16 +173,16 @@ export class MenuService {
             }
         })
         if (isFalse == 1) {
-
             return false;
         }
 
         return true;
     }
 
-    async getAllMenu (orderParam: any): Promise<MenuProps[]> {
-        let order: any = [['spotlight', -1]]
-        if (orderParam.order && orderParam.order === "none") {
+    async getAllMenu(orderParam: string | undefined): Promise<MenuProps[]> {
+        const desc = -1
+        let order: any = [['spotlight', desc]]
+        if (orderParam && orderParam === "none") {
             order = []
         }
         return await MenuModel.find().sort(order).exec();
