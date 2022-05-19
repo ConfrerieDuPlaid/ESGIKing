@@ -6,12 +6,14 @@ export class Product implements ProductProps{
     readonly name: string;
     readonly price: number;
     readonly reduction: string;
+    readonly spotlight?: boolean
 
     constructor(props: ProductProps) {
         this.id = props.id;
         this.name = props.name;
         this.price = props.price;
         this.reduction = props.reduction;
+        this.spotlight = props.spotlight ? props.spotlight : false
     }
 
     static withoutId(props: ProductWithoutId) {
@@ -19,7 +21,8 @@ export class Product implements ProductProps{
             id: new ProductId(''),
             name: props.name,
             price: props.price,
-            reduction: props.reduction
+            reduction: props.reduction,
+            spotlight: props.spotlight
         })
     }
 
@@ -30,6 +33,7 @@ export interface ProductProps {
     readonly name: string;
     readonly price: number;
     readonly reduction: string;
+    readonly spotlight?: boolean
 }
 
-export type ProductWithoutId = Pick<ProductProps, "name" | "price" | "reduction">
+export type ProductWithoutId = Pick<ProductProps, "name" | "price" | "reduction" | "spotlight">

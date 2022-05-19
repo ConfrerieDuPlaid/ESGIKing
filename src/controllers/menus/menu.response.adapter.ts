@@ -5,7 +5,6 @@ import {MenuProps} from "../../models/menus/menu.model";
 export class MenuResponseAdapter {
     static adapt(menu: MenuProps, req: Request) {
         let linkToProduct: String[] = [];
-
         const restaurant = menu.restaurant
             ? HttpUtils.getFullUrlOf(req) + menu.restaurant
             : "";

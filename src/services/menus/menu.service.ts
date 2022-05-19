@@ -6,7 +6,6 @@ import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
 import {StaffService} from "../staff.service";
-import {Schema} from "mongoose";
 
 
 
@@ -71,6 +70,7 @@ export class MenuService {
             amount: Menu.amount,
             status: Status[1],
         })
+        if (Menu.spotlight) model.spotlight = Menu.spotlight
 
         const newMenu = await model.save()
         if(newMenu){
@@ -143,6 +143,10 @@ export class MenuService {
         if(menu.products && menu.products.length > 0){
             updateMenu.products = menu.products;
         }
+
+        if (menu.spotlight) {
+            updateMenu.spotlight = menu.spotlight
+        }
         updateMenu.save()
         return true;
     }
@@ -169,14 +173,18 @@ export class MenuService {
             }
         })
         if (isFalse == 1) {
-
             return false;
         }
 
         return true;
     }
 
-    async getAllMenu(): Promise<MenuProps[]> {
-        return await MenuModel.find().exec();
+    async getAllMenu(orderParam: string | undefined): Promise<MenuProps[]> {
+        const desc = -1
+        let order: any = [['spotlight', desc]]
+        if (orderParam && orderParam === "none") {
+            order = []
+        }
+        return await MenuModel.find().sort(order).exec();
     }
 }
