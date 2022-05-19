@@ -1,6 +1,8 @@
 import {UserDocument, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
 import {Roles} from "../utils/roles";
+import {OrderDocument} from "../models/orders/order.model";
+import {OrderService} from "./orders/order.service";
 
 export class UserService {
 
@@ -34,4 +36,8 @@ export class UserService {
         return validRoles.indexOf(user.role.toString()) !== -1
     }
 
+    async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string) {
+        const order = await OrderService.getInstance().getOrdersByStatusAndUserId(status, userId, authToken);
+        return order;
+    }
 }

@@ -30,7 +30,7 @@ export class MenuController extends DefaultController{
             if (menu === null) {
                 throw new ErrorResponse("Not found", 404)
             }
-            return MenuResponseAdapter.adapt(menu)
+            return MenuResponseAdapter.adapt(menu, req)
         }, 200)
     }
 
@@ -39,8 +39,7 @@ export class MenuController extends DefaultController{
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             const orderBy = req.query.order?.toString()
             const menus = await this.menuService.getAllMenu(orderBy);
-            return menus.map(menu => MenuResponseAdapter.adapt(menu))
-
+            return menus.map(menu => MenuResponseAdapter.adapt(menu, req))
         }, 201);
     }
 
