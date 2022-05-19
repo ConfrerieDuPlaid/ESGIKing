@@ -1,10 +1,12 @@
 
-import {MenuModel, MenuProps} from "../../models/menus/menu.model";
+import {MenuDocument, MenuModel, MenuProps} from "../../models/menus/menu.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
 import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
+import {StaffService} from "../staff.service";
+import {Schema} from "mongoose";
 
 
 
@@ -23,6 +25,33 @@ export class MenuService {
     }
 
     private constructor() { }
+
+    public async getMenu (menuId: string, authToken: string): Promise<MenuDocument | null> {
+        const menu: MenuDocument | null = await MenuModel.findById(menuId).exec()
+        if (menu === null) {
+            throw new ErrorResponse("Menu not found", 404)
+        }
+
+        const userId: string = await AuthService.getInstance().getUserIdByAuthToken(authToken)
+        const isInRestaurant: boolean = await StaffService.getInstance().userIsAssignedToRestaurant(userId)
+        if(!isInRestaurant) throw new ErrorResponse("You can't access this resource", 406)
+
+        return menu
+    }
+
+    public async deactivateMenu (menuId: string, authToken: string): Promise<boolean> {
+        const menu: MenuDocument | null = await this.getMenu(menuId, authToken)
+        if (menu === null) {
+            throw new ErrorResponse("Menu not found", 404)
+        }
+
+        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(menu.restaurant!, authToken);
+        if(!isAdmin) return false
+
+        menu.status = Status[0]
+        await menu.save()
+        return true
+    }
 
     public async createMenu (Menu: MenuWithoutId, authToken: string): Promise<MenuProps | Boolean> {
 
@@ -117,6 +146,8 @@ export class MenuService {
         updateMenu.save()
         return true;
     }
+
+
     private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
@@ -127,20 +158,25 @@ export class MenuService {
             return false;
         }
 
-        if(!isAdmin){
+        if (!isAdmin) {
             return false;
         }
         let isFalse = 0;
         Menu.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
+            if (!restaurant.products!.includes(elm)) {
                 isFalse = 1;
-                return ;
+                return;
             }
         })
-        if(isFalse == 1){
+        if (isFalse == 1) {
+
             return false;
         }
 
         return true;
+    }
+
+    async getAllMenu(): Promise<MenuProps[]> {
+        return await MenuModel.find().exec();
     }
 }

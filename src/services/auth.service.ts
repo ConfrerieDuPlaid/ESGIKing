@@ -4,6 +4,7 @@ import {SessionDocument, SessionModel, UserDocument, UserModel, UserProps} from 
 import {DateUtils, ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
 import {Request} from "express";
 import {Roles} from "../utils/roles";
+import {Schema} from "mongoose";
 
 
 type UserWithoutId = Partial<UserProps>
@@ -22,11 +23,17 @@ export class AuthService {
 
     private constructor() { }
 
-    public async verifyPermissions (req: Request, requiredRole: Roles) {
+    public async verifyPermissions (req: Request, requiredRole: Roles | Roles[]) {
         const authToken = getAuthorization(req)
-        if (!await this.isValidRoleAndSession(authToken, Roles.toString(requiredRole))) {
-            throw new ErrorResponse("You don't have permissions !", 403)
+        let permAllowed = false ;
+        if (Array.isArray(requiredRole)) {
+            for (let i = 0 ; i < requiredRole.length ; ++i) {
+                permAllowed = permAllowed || await this.isValidRoleAndSession(authToken, Roles.toString(requiredRole[i]))
+            }
+        } else {
+            permAllowed = await this.isValidRoleAndSession(authToken, Roles.toString(requiredRole))
         }
+        if (!permAllowed) throw new ErrorResponse("You don't have permissions !", 403)
     }
 
     public async isValidRoleAndSession (token: string | null, expectedRole: string | string[]): Promise<boolean> {
@@ -95,5 +102,11 @@ export class AuthService {
         }).exec();
 
         return userId == currentUser._id;
+    }
+
+    public async getUserIdByAuthToken (userAuth: string): Promise<string> {
+        const session = await SessionModel.findById(userAuth).exec()
+        if (!session) throw new ErrorResponse("User not found", 404)
+        return session.user
     }
 }
