@@ -21,7 +21,7 @@ const chatSchema = new Schema({
     }
 
 }, {
-    collection: "chat",
+    collection: "chats",
     timestamps: true,
     versionKey: false
 })
