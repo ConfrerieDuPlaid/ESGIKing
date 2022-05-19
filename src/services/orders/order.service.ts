@@ -135,10 +135,19 @@ export class OrderService {
          const order = await OrderModel.findOne({_id: orderId}).exec();
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && (statusCompare[newStatus] == order.status)){
+        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
             order.status = newStatus;
             return await order.save() !== null;
         }
         return false
+    }
+
+    isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
+        const oldToNextStatus: { [k:string]: string[] } = {
+            "created" : ["inProgress"] ,
+            "inProgress": ["done", "onTheWay"],
+        };
+
+        return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
     }
 }
