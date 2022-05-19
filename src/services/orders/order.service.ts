@@ -21,6 +21,9 @@ export class OrderService {
 
     private static instance: OrderService
 
+    private chatErrMsg: string = "The chat is unavailable for this order"
+
+
     public static getInstance (): OrderService {
         if (OrderService.instance === undefined) {
             OrderService.instance = new OrderService()
@@ -166,27 +169,47 @@ export class OrderService {
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
     }
 
+    private async verifyUserInChat (authToken: string, userRole: string, order: OrderDocument) {
+        if (userRole === Roles.Customer.toString()) {
+            if (!order.customer) throw new ErrorResponse(this.chatErrMsg, 400)
+            const isOrderCustomer: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.customer)
+            if (!isOrderCustomer) throw new ErrorResponse("You're not allowed to view this chat", 403)
+        } else if (userRole === Roles.DeliveryMan.toString()) {
+            if (!order.deliveryman) throw new ErrorResponse(this.chatErrMsg, 400)
+            const isOrderDeliveryman: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.deliveryman)
+            if (!isOrderDeliveryman) throw new ErrorResponse("You're not allowed to view this chat", 403)
+        }
+    }
+
     async getOrderChat (orderId: string, authToken: string): Promise<ChatDocument[]> {
-        const errMsg: string = "The chat is unavailable for this order"
         const order: OrderDocument = await OrderModel.findById(orderId).exec()
         const user: UserDocument = await UserModel.findOne({
             session: authToken
         }).exec()
 
-        if (order.status !== "onTheWay") throw new ErrorResponse(errMsg, 400)
-
-        if (user.role === Roles.Customer.toString()) {
-            if (!order.customer) throw new ErrorResponse(errMsg, 400)
-            const isOrderCustomer: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.customer)
-            if (!isOrderCustomer) throw new ErrorResponse("You're not allowed to view this chat", 403)
-        } else if (user.role === Roles.DeliveryMan.toString()) {
-            if (!order.deliveryman) throw new ErrorResponse(errMsg, 400)
-            const isOrderDeliveryman: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.deliveryman)
-            if (!isOrderDeliveryman) throw new ErrorResponse("You're not allowed to view this chat", 403)
-        }
+        if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
+        await this.verifyUserInChat(authToken, user.role, order)
 
         return await ChatModel.find({
             order: orderId
         }).exec()
+    }
+
+    async sendInOrderChat (orderId: string, authToken: string, message: string) {
+        const order: OrderDocument = await OrderModel.findById(orderId).exec()
+        const user: UserDocument = await UserModel.findOne({
+            session: authToken
+        }).exec()
+
+        if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
+        await this.verifyUserInChat(authToken, user.role, order)
+
+        if (!message) throw new ErrorResponse("Message can't be empty", 412)
+        const chatMessageModel = new ChatModel({
+            order: orderId,
+            sender: user._id,
+            message: message,
+            date: new Date()
+        }).save()
     }
 }
