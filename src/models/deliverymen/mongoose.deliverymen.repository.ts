@@ -7,7 +7,6 @@ import {Deliveryman, DeliverymanWithoutId} from "../../services/deliverymen/doma
 
 export class MongooseDeliverymenRepository implements DeliverymenRepository{
     async getAllByStatus(status?:string): Promise<Deliveryman[]> {
-        console.log(status)
         const deliverymen: DeliverymanDocument[] = await DeliverymanModel.find({
             status: status
         }).exec();
