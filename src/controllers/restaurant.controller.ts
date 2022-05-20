@@ -3,7 +3,6 @@ import express, {Request, Response, Router} from "express";
 import {AuthService, RestaurantService} from "../services";
 import {ErrorResponse, getAuthorization} from "../utils";
 import {Roles} from "../utils/roles";
-import {StaffModel} from "../models";
 import {GpsPoint} from "../utils/gps.point";
 
 export class RestaurantController extends DefaultController {

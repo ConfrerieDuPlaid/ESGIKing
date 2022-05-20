@@ -1,8 +1,5 @@
 import * as crypto from "crypto"
 import {Request} from "express";
-import {Roles} from "./roles";
-import {AuthService} from "../services";
-import {ErrorResponse} from "./error.utils";
 
 export class SecurityUtils {
     public static sha512 (str: string): string {

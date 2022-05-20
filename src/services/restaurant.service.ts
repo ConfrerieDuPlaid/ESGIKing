@@ -1,11 +1,6 @@
-import {RestaurantDocument, RestaurantModel, RestaurantProps, StaffDocument, UserDocument, UserModel} from "../models";
+import {RestaurantDocument, RestaurantModel, RestaurantProps, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
-import {Roles} from "../utils/roles"
-import {UserService} from "./user.service"
 import {StaffModel} from "../models/staff.model";
-import {AuthService} from "./auth.service";
-import GeoJSON from 'mongoose-geojson-schema';
-import {GpsPoint} from "../utils/gps.point";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 type RestaurantPartial = Partial<RestaurantProps>

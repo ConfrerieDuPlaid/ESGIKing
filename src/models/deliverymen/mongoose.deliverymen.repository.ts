@@ -1,5 +1,3 @@
-import {ProductRepository} from "../../services/products/domain/product.repository";
-import {Product} from "../../services/products/domain/product";
 import {DeliverymanDocument, DeliverymanModel} from "./mongoose.deliverymen.model";
 import {DeliverymanAdapter} from "./deliveryman.adapter";
 import {DeliverymenRepository} from "../../services/deliverymen/domain/deliverymen.repository";

@@ -1,4 +1,3 @@
-
 import {OrderDocument, OrderModel, OrderProps} from "../../models/orders/order.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
@@ -8,7 +7,6 @@ import {OrderStatus} from "./order.status";
 import {ReductionModel} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
 import {AuthService} from "../auth.service";
-
 
 
 type OrderWithoutId = Partial<OrderProps>

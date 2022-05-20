@@ -1,6 +1,6 @@
 import {ReductionModel, ReductionProps} from "../models/reduction.model";
 import {ErrorResponse} from "../utils";
-import {RestaurantModel, StaffModel, UserModel} from "../models";
+import {RestaurantModel} from "../models";
 import {RestaurantService} from "./restaurant.service";
 
 export class ReductionService{

@@ -1,7 +1,6 @@
 import {DefaultController} from "../index";
 import express, {Request, Response, Router} from "express";
 import {DeliverymanResponseAdapter} from "./deliveryman.response.adapter";
-import {Product} from "../../services/products/domain/product";
 import {Deliveryman} from "../../services/deliverymen/domain/deliveryman";
 import {DeliverymenService} from "../../services/deliverymen/deliverymen.service";
 

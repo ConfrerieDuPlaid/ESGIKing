@@ -1,4 +1,4 @@
-import mongoose, {Schema, Document, SchemaType} from "mongoose";
+import mongoose, {Document, Schema} from "mongoose";
 import {GpsPoint} from "../utils/gps.point";
 
 const restaurantSchema = new Schema({
