@@ -1,4 +1,5 @@
 import mongoose, {Document, Schema} from "mongoose";
+import {GpsPoint} from "../../utils/gps.point";
 
 const deliverymanSchema = new Schema({
     name: {
@@ -6,7 +7,7 @@ const deliverymanSchema = new Schema({
         required: true
     },
     position: {
-        type: Schema.Types.String,
+        type: Schema.Types.Mixed,
         required: false
     }
 }, {
@@ -18,7 +19,7 @@ const deliverymanSchema = new Schema({
 export interface MongooseDeliverymanProps {
     _id: string;
     name: string;
-    position: string;
+    position: GpsPoint;
     status: string;
 }
 

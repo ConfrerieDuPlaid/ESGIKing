@@ -1,10 +1,11 @@
 import {DeliverymanId} from "./deliveryman.id";
+import {GpsPoint} from "../../../utils/gps.point";
 
 
 export class Deliveryman implements DeliverymanProps{
     readonly id: DeliverymanId;
     readonly name: string;
-    readonly position: string;
+    readonly position: GpsPoint;
     readonly status: string;
 
     constructor(props: DeliverymanProps) {
@@ -27,7 +28,7 @@ export class Deliveryman implements DeliverymanProps{
 export interface DeliverymanProps {
     readonly id: DeliverymanId;
     readonly name: string;
-    readonly position: string;
+    readonly position: GpsPoint;
     readonly status: string;
 }
 
