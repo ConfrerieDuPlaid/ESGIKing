@@ -4,10 +4,8 @@ import {DeliverymenRepository} from "../../services/deliverymen/domain/deliverym
 import {Deliveryman, DeliverymanWithoutId} from "../../services/deliverymen/domain/deliveryman";
 
 export class MongooseDeliverymenRepository implements DeliverymenRepository{
-    async getAllByStatus(status?:string): Promise<Deliveryman[]> {
-        const deliverymen: DeliverymanDocument[] = await DeliverymanModel.find({
-            status: status
-        }).exec();
+    async getAll(): Promise<Deliveryman[]> {
+        const deliverymen: DeliverymanDocument[] = await DeliverymanModel.find().exec();
         return deliverymen.map(deliveryman => DeliverymanAdapter.adapt(deliveryman));
     }
 

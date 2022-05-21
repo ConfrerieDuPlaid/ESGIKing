@@ -1,6 +1,6 @@
 export enum DeliverymenStatus {
-    available,
-    delivering
+    available = 'available',
+    delivering = 'delivering'
 }
 
 

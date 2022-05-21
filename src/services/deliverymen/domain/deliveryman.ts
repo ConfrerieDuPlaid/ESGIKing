@@ -1,12 +1,13 @@
 import {DeliverymanId} from "./deliveryman.id";
 import {GpsPoint} from "../../../utils/gps.point";
+import {DeliverymenStatus} from "./deliverymen.status";
 
 
 export class Deliveryman implements DeliverymanProps{
     readonly id: DeliverymanId;
     readonly name: string;
     readonly position: GpsPoint;
-    readonly status: string;
+    readonly status: DeliverymenStatus;
 
     constructor(props: DeliverymanProps) {
         this.id = props.id;
@@ -29,7 +30,7 @@ export interface DeliverymanProps {
     readonly id: DeliverymanId;
     readonly name: string;
     readonly position: GpsPoint;
-    readonly status: string;
+    readonly status: DeliverymenStatus;
 }
 
 export type DeliverymanWithoutId = Pick<DeliverymanProps, "name" | "position" | "status">

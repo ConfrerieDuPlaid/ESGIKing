@@ -9,6 +9,10 @@ const deliverymanSchema = new Schema({
     position: {
         type: Schema.Types.Mixed,
         required: false
+    },
+    status: {
+        type: Schema.Types.String,
+        required: false
     }
 }, {
     collection: 'deliverymen',
