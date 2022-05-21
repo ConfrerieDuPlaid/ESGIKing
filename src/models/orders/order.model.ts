@@ -1,4 +1,5 @@
 import mongoose, {Document, Schema} from "mongoose";
+import {Deliveryman} from "../../services/deliverymen/domain/deliveryman";
 
 const OrderSchema = new Schema({
     restaurant: {
@@ -34,6 +35,11 @@ const OrderSchema = new Schema({
         ref: "users",
         required: false,
     },
+    deliverymanId: {
+        type: Schema.Types.ObjectId,
+        ref: "deliverymen",
+        required: false
+    },
     address: {
         type: Schema.Types.String,
         required: false
@@ -53,6 +59,7 @@ export interface OrderProps {
     status: string;
     reductionId?: string;
     customer?: string;
+    deliverymanId?: string
     address?: string;
 }
 

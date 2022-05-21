@@ -31,10 +31,10 @@ export class OrderController extends DefaultController{
                 restaurant: req.body.restaurant,
                 products: req.body.products,
                 amount: 0,
-                menus: req.body.menus ? req.body.menus : null,
-                reductionId: req.body.reduction ? req.body.reduction : null,
-                customer: req.body.customer ? req.body.customer : null,
-                address: req.body.address ? req.body.address : null
+                menus: req.body.menus,
+                reductionId: req.body.reduction,
+                customer: req.body.customer,
+                address: req.body.address
             });
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
@@ -61,13 +61,7 @@ export class OrderController extends DefaultController{
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
             const authToken = getAuthorization(req);
-            let res: Boolean = false;
-            if(req.query.status){
-                res = await this.orderService.updateOrder(req.params.orderId, req.query.status.toString() , authToken);
-            }
-            if(!res){
-                throw new ErrorResponse("The order cannot be update", 400)
-            }
+            return await this.orderService.updateOrder(req.params.orderId, req.query.status?.toString() , authToken);
         }, 201);
     }
 
