@@ -18,6 +18,7 @@ export class OrderController extends DefaultController{
         router.put('/', express.json(), this.createOrder.bind(this))
         router.get('/:restaurantId/status/:status', express.json(), this.getOrdersByRestaurantIdAndStatus.bind(this))
         router.get('/:orderId/chat', this.getOrderChat.bind(this))
+        router.put('/:orderId/chat', express.json() , this.putInOrderChat.bind(this))
         router.patch('/:orderId', express.json(), this.updateOrder.bind(this))
         return router
     }
@@ -25,7 +26,9 @@ export class OrderController extends DefaultController{
 
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+            if (req.body.address) {
+                await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+            }
             const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: OrderStatus[0],
                 restaurant: req.body.restaurant,
@@ -34,6 +37,7 @@ export class OrderController extends DefaultController{
                 menus: req.body.menus ? req.body.menus : null,
                 reductionId: req.body.reduction ? req.body.reduction : null,
                 customer: req.body.customer ? req.body.customer : null,
+                address: req.body.address ? req.body.address : null
             });
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
@@ -43,7 +47,7 @@ export class OrderController extends DefaultController{
         }, 201);
     }
 
-    async getOrderChat(req: Request, res: Response) {
+    async getOrderChat (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, [Roles.Customer, Roles.DeliveryMan]);
             const authToken = getAuthorization(req);
@@ -51,6 +55,13 @@ export class OrderController extends DefaultController{
         }, 200)
     }
 
+    async putInOrderChat (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, [Roles.Customer, Roles.DeliveryMan]);
+            const authToken = getAuthorization(req);
+            return await this.orderService.sendInOrderChat(req.params.orderId, authToken, req.body.message);
+        }, 201)
+    }
 
     async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {

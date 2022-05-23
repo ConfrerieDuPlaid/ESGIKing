@@ -2,11 +2,11 @@ import {ProductId} from "./product.id";
 
 
 export class Product implements ProductProps{
-    readonly id: ProductId;
-    readonly name: string;
-    readonly price: number;
-    readonly reduction: string;
-    readonly spotlight?: boolean
+    id: ProductId;
+    name: string;
+    price: number;
+    reduction: string;
+    spotlight?: boolean
 
     constructor(props: ProductProps) {
         this.id = props.id;

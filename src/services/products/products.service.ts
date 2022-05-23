@@ -3,6 +3,7 @@ import {ProductRepository} from "./domain/product.repository";
 import {ProductModule} from "./product.module";
 import {ErrorResponse} from "../../utils";
 import {ReductionService} from "../reduction.service";
+import {UpdateProductDto} from "../../controllers/products/update-product.dto";
 
 export class ProductsService {
     private static instance: ProductsService;
@@ -17,6 +18,10 @@ export class ProductsService {
 
     async getAllProducts (orderParam: any): Promise<Product[]> {
         return await this.repository.getAll(orderParam);
+    }
+
+    async getOneProductById(productId: string) {
+        return await this.repository.getById(productId)
     }
 
     async createProduct(dto: ProductWithoutId): Promise<Product> {
@@ -35,5 +40,20 @@ export class ProductsService {
             spotlight: dto.spotlight
         })
         return await this.repository.create(product)
+    }
+
+    async updateProduct(dto: UpdateProductDto): Promise<Product>  {
+        const product: Product = await this.repository.getById(dto.id);
+        if(dto.name != undefined){
+            product.name = dto.name;
+        }
+        if(dto.price != undefined){
+            product.price = dto.price;
+        }
+
+        if(dto.reduction != undefined){
+            product.reduction = dto.reduction;
+        }
+        return await this.repository.update(product);
     }
 }
