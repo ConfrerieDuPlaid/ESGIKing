@@ -7,6 +7,7 @@ import {StaffModel} from "../models";
 import {Product} from "../services/products/domain/product";
 import {ProductResponseAdapter} from "./products/product.response.adapter";
 import {HttpUtils} from "../utils/http.utils";
+import {GpsPoint} from "../utils/gps.point";
 
 export class RestaurantController extends DefaultController {
 
@@ -29,9 +30,30 @@ export class RestaurantController extends DefaultController {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().createRestaurant({
                 name: req.body.name,
-                address: req.body.address
+                address: req.body.address,
+                location: this.getGpsPointInGeoJsonFromRequest(req)
             })
         }, 201)
+    }
+
+    private getGpsPointInGeoJsonFromRequest(req: express.Request): GpsPoint {
+        const geoJsonGeometry = req.body.location?.features[0]?.geometry;
+        if(!this.isGeoJsonValid(geoJsonGeometry))
+            throw new ErrorResponse("Bad GeoJSON", 400);
+
+        return new GpsPoint(
+            geoJsonGeometry.coordinates[0],
+            geoJsonGeometry.coordinates[1]
+        );
+    }
+
+    private isGeoJsonValid(location?: {type: string, coordinates: number[]}): boolean {
+        if(!location) return false;
+        const isPointType = location.type.toLowerCase() === "point";
+        const coordinates = location.coordinates;
+        const isCoordinatesArrayOfTwoNumbers = coordinates.length === 2
+            && !isNaN(+coordinates[0]) && !isNaN(+coordinates[1]);
+        return isPointType && isCoordinatesArrayOfTwoNumbers;
     }
 
     async getOneRestaurant (req: Request, res: Response) {

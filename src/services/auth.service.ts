@@ -1,10 +1,7 @@
-
-
 import {SessionDocument, SessionModel, UserDocument, UserModel, UserProps} from "../models";
 import {DateUtils, ErrorResponse, getAuthorization, SecurityUtils} from "../utils";
 import {Request} from "express";
 import {Roles} from "../utils/roles";
-import {Schema} from "mongoose";
 
 
 type UserWithoutId = Partial<UserProps>

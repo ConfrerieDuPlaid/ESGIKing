@@ -38,8 +38,7 @@ export class MenuController extends DefaultController{
     async getAllMenu(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
-            const orderBy = req.query.order?.toString()
-            const menus = await this.menuService.getAllMenu(orderBy);
+            const menus = await this.menuService.getAllMenu(req.query.order?.toString());
             return menus.map(menu => MenuResponseAdapter.adapt(menu, req))
         }, 201);
     }

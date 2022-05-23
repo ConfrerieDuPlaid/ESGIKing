@@ -12,6 +12,7 @@ export class OrderController extends DefaultController{
 
 
     private readonly orderService: OrderService = OrderService.getInstance();
+    private readonly authService: AuthService = AuthService.getInstance();
 
     buildRoutes (): Router {
         const router = express.Router()
@@ -27,17 +28,17 @@ export class OrderController extends DefaultController{
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             if (req.body.address) {
-                await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+                await this.authService.verifyPermissions(req, Roles.Customer);
             }
             const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: OrderStatus[0],
                 restaurant: req.body.restaurant,
                 products: req.body.products,
                 amount: 0,
-                menus: req.body.menus ? req.body.menus : null,
-                reductionId: req.body.reduction ? req.body.reduction : null,
-                customer: req.body.customer ? req.body.customer : null,
-                address: req.body.address ? req.body.address : null
+                menus: req.body.menus,
+                reductionId: req.body.reduction,
+                customer: req.body.customer,
+                address: req.body.address
             });
             if(!res){
                 throw new ErrorResponse("The order cannot be placed", 500)
@@ -78,15 +79,9 @@ export class OrderController extends DefaultController{
 
     async updateOrder(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await this.authService.verifyPermissions(req, Roles.OrderPicker);
             const authToken = getAuthorization(req);
-            let res: Boolean = false;
-            if(req.query.status){
-                res = await this.orderService.updateOrder(req.params.orderId, req.query.status.toString() , authToken);
-            }
-            if(!res){
-                throw new ErrorResponse("The order cannot be update", 400)
-            }
+            return await this.orderService.updateOrder(req.params.orderId, req.query.status?.toString() , authToken);
         }, 201);
     }
 

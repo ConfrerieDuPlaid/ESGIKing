@@ -1,4 +1,3 @@
-
 import {OrderDocument, OrderModel, OrderProps} from "../../models/orders/order.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
@@ -9,12 +8,13 @@ import {ReductionModel} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
 import {UserDocument, UserModel} from "../../models";
 import {AuthService} from "../auth.service";
+import {DeliverymenService} from "../deliverymen/deliverymen.service";
+import {DeliverymenStatus} from "../deliverymen/domain/deliverymen.status";
 import {Roles} from "../../utils/roles";
 import {ChatDocument, ChatModel} from "../../models/chat.model";
 
 
-
-type OrderWithoutId = Partial<OrderProps>
+type OrderWithoutId = Omit<OrderProps, "_id">
 
 export class OrderService {
 
@@ -30,100 +30,86 @@ export class OrderService {
         return OrderService.instance
     }
 
-    private constructor() { }
+    private deliverymenService = DeliverymenService.getInstance();
 
-    public async createOrder (Order: OrderWithoutId): Promise<OrderProps | Boolean> {
+    public async createOrder (order: OrderWithoutId): Promise<OrderProps> {
 
-        const verifyOrder = await this.verifyOrder(Order)
-        if(!verifyOrder) {
-            return false;
-        }
-
-        const amoutOfOrder = await this.computeOrderAmount(Order);
-
-        const model = new OrderModel({
-            restaurant: Order.restaurant,
-            menus: Order.menus,
-            reductionId: Order.reductionId,
-            products: Order.products,
-            amount: amoutOfOrder,
+        await this.verifyOrder(order);
+        const amountOfOrder = await OrderService.computeOrderAmount(order);
+        const isAddressInOrder = order.address !== undefined;
+        const deliveryman = isAddressInOrder
+            ? await this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant)
+            : undefined;
+        return new OrderModel({
+            restaurant: order.restaurant,
+            menus: order.menus,
+            reductionId: order.reductionId,
+            products: order.products,
+            amount: amountOfOrder,
             status: OrderStatus[0],
-            customer: Order.customer,
-            address: Order.address
-
-        })
-
-        const newOrder = await model.save();
-        if(newOrder){
-            return newOrder;
-        }else{
-            return false;
-        }
+            customer: order.customer,
+            deliverymanId: deliveryman?.id.value,
+            address: order.address
+        }).save();
 
     }
 
-    private async verifyOrder(Order: OrderWithoutId) {
+    private async verifyOrder(order: OrderWithoutId): Promise<void> | never {
 
-        const restaurant = await RestaurantService.getInstance().getOneRestaurant(Order.restaurant!);
+        const restaurant = await RestaurantService.getInstance().getOneRestaurant(order.restaurant!);
+        if (!restaurant) throw new ErrorResponse(`Restaurant ${order.restaurant} not found.`, 404)
 
-        if (!restaurant) {
-            return false;
-        }
-
-        if(Order.reductionId){
-            const reduction = await ReductionService.getInstance().getReductionById(Order.reductionId);
-            if(reduction.restaurant != restaurant?._id.toString() || reduction.status == 0){
-                throw new ErrorResponse("Wrong reduction id", 400)
-            }
-        }
-
-        if (!Order.products && !Order.menus) {
+        if (!order.products && !order.menus) {
             throw new ErrorResponse("Empty order", 412)
         }
 
-        let productIsInTheRestaurant = true;
-        if (Order.products && Order.products!.length > 0) Order.products.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
-                productIsInTheRestaurant = false;
-                return ;
+        if(order.reductionId){
+            const reduction = await ReductionService.getInstance().getReductionById(order.reductionId);
+            if(reduction.restaurant !== restaurant?._id.toString() || reduction.status === 0){
+                throw new ErrorResponse(`Wrong reduction id ${order.reductionId}`, 400)
             }
-        })
+        }
 
-        let menuIsInTheRestaurant = true;
-        if (Order.menus) Order.menus.forEach(elm => {
-            if(!restaurant.menus!.includes(elm)){
-                menuIsInTheRestaurant = false;
-                return ;
-            }
-        })
-        return productIsInTheRestaurant && menuIsInTheRestaurant;
+        if(order.products) {
+            order.products.forEach(product => {
+                if (!restaurant.products!.includes(product))
+                    throw new ErrorResponse(`Product ${product} not in restaurant ${restaurant._id}.`, 404);
+            })
+        }
 
+        
+        if(order.menus){
+            console.log(order.menus)
+            order.menus.forEach(menuId => {
+                if (!restaurant.menus!.includes(menuId))
+                    throw new ErrorResponse(`Menu ${menuId} not in restaurant ${restaurant._id}.`, 404);
+            })
+        }
     }
 
 
-    private async computeOrderAmount(Order: OrderWithoutId) {
+    private static async computeOrderAmount(order: OrderWithoutId) {
         let amount = 0;
         let reduction = null;
         let price;
-        if (Order.products) for (const elm of Order.products!) {
-            const product = await ProductModel.findById(elm)
+        if (order.products) for (const productId of order.products!) {
+            const product = await ProductModel.findById(productId)
             if (product)
                 reduction = await ReductionModel.findOne({
                     status: 1,
-                    restaurant: Order.restaurant,
+                    restaurant: order.restaurant,
                     product: product._id,
                 });
             price = !reduction ? product.price : product.price - (product.price * (reduction.amount / 100));
             amount += price;
         }
 
-        if (Order.menus) for (const elm of Order.menus!) {
-            const menu = await MenuModel.findById(elm)
-            if(menu)
-                amount += menu.amount;
+        if (order.menus) for (const menuId of order.menus!) {
+            const menu = await MenuModel.findById(menuId)
+            amount += menu.amount;
         }
-
         return amount;
+
     }
 
     async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
@@ -150,24 +136,41 @@ export class OrderService {
         }).exec();
     }
 
-    async updateOrder(orderId: string, newStatus: string , authToken: string): Promise<Boolean> {
-        const order = await OrderModel.findOne({_id: orderId}).exec();
-        if(!order)
-            return false;
-
+    async updateOrder(orderId: string, newStatus: string | undefined , authToken: string): Promise<OrderDocument> {
+        const order: OrderDocument = await OrderModel.findOne({_id: orderId}).exec();
+        if(!order) throw new ErrorResponse(`Order ${orderId} not found.`, 404);
+        if(!newStatus) return order;
+        if(!this.isStatusNextFromCurrentStatus(newStatus, order.status))
+            throw new ErrorResponse(`Cannot change status from ${order.status} to ${newStatus}.`, 422);
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
-            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("Order can't be delivered", 400)
+        if(isOrderPicker){
+            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("No address given", 400)
+            if (newStatus === "done" && order.address) throw new ErrorResponse("Order can't be handed out", 400)
             order.status = newStatus;
-            return await order.save() !== null;
+            this.dispatchOrderStatusChanged(order);
         }
-        return false
+        return await order.save();
+    }
+
+    private dispatchOrderStatusChanged(order: OrderDocument): void {
+        if(!order.deliverymanId) return;
+        let newDeliverymanStatus: DeliverymenStatus;
+        switch (order.status) {
+            case "onTheWay": newDeliverymanStatus = DeliverymenStatus.delivering; break;
+            case "delivered": newDeliverymanStatus = DeliverymenStatus.available; break;
+            default: return;
+        }
+        this.deliverymenService.updateDeliverymanStatus(
+            order.deliverymanId,
+            newDeliverymanStatus
+        );
     }
 
     isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
         const oldToNextStatus: { [oldStatus:string]: string[] } = {
             "created" : ["inProgress"] ,
             "inProgress": ["done", "onTheWay"],
+            "onTheWay": ["delivered"]
         };
 
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);

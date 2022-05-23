@@ -1,9 +1,6 @@
-import {RestaurantDocument, RestaurantModel, RestaurantProps, StaffDocument, UserDocument, UserModel} from "../models";
+import {RestaurantDocument, RestaurantModel, RestaurantProps, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
-import {Roles} from "../utils/roles"
-import {UserService} from "./user.service"
 import {StaffModel} from "../models/staff.model";
-import {AuthService} from "./auth.service";
 
 type RestaurantWithoutId = Partial<RestaurantProps>
 type RestaurantPartial = Partial<RestaurantProps>
@@ -43,17 +40,22 @@ export class RestaurantService {
         return false;
     }
 
-    public async createRestaurant (restaurant: RestaurantWithoutId): Promise<RestaurantDocument> {
+    public async createRestaurant(restaurant: RestaurantWithoutId): Promise<RestaurantDocument> {
         if (!restaurant.name) {
             throw new ErrorResponse("You have to specify a name for the restaurant", 400)
         }
         if (!restaurant.address) {
-            throw new ErrorResponse("You have to specify an address for the restaurant", 400)
+            throw new ErrorResponse("You have to specify the address for the restaurant", 400)
+        }
+
+        if (!restaurant.location) {
+            throw new ErrorResponse("You have to specify the location in GeoJSON format for the restaurant", 400)
         }
 
         const model = new RestaurantModel({
             name: restaurant.name,
-            address: restaurant.address
+            address: restaurant.address,
+            location: restaurant.location
         })
         return model.save()
     }
@@ -63,7 +65,7 @@ export class RestaurantService {
     }
 
     public async getAllRestaurants (): Promise<RestaurantDocument[] | null> {
-        return await RestaurantModel.find()
+        return RestaurantModel.find();
     }
 
     public async deleteRestaurant (restaurantID: string): Promise<boolean> {

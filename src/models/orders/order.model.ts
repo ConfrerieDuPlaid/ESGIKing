@@ -34,10 +34,10 @@ const OrderSchema = new Schema({
         ref: "users",
         required: false,
     },
-    deliveryman: {
+    deliverymanId: {
         type: Schema.Types.ObjectId,
-        ref: "users",
-        required: false,
+        ref: "deliverymen",
+        required: false
     },
     address: {
         type: Schema.Types.String,
@@ -58,6 +58,7 @@ export interface OrderProps {
     status: string;
     reductionId?: string;
     customer?: string;
+    deliverymanId?: string
     address?: string;
     deliveryman?:string;
 }

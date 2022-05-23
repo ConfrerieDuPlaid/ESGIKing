@@ -29,7 +29,7 @@ export class ProductsController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const product = await this.productService
                 .getOneProductById(req.params.productID);
-            return ProductResponseAdapter.adapt(product);
+            return ProductResponseAdapter.adapt(product, req);
         });
     }
 
@@ -52,7 +52,7 @@ export class ProductsController extends DefaultController {
                 price: +req.body.price,
                 reduction: req.body.reduction
             });
-            return ProductResponseAdapter.adapt(product);
+            return ProductResponseAdapter.adapt(product, req);
         });
     }
 
