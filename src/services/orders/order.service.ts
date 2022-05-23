@@ -204,7 +204,7 @@ export class OrderService {
         await this.verifyUserInChat(authToken, user.role, order)
 
         if (!message) throw new ErrorResponse("Message can't be empty", 412)
-        const chatMessageModel = new ChatModel({
+        return new ChatModel({
             order: orderId,
             sender: user._id,
             message: message,
