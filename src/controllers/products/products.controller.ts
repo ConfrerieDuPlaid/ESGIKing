@@ -1,11 +1,12 @@
 import {DefaultController} from "../index";
 import express, {Request, Response, Router} from "express";
-import {ProductsService} from "../../services";
+import {ProductsService, RestaurantService} from "../../services";
 import {ProductResponseAdapter} from "./product.response.adapter";
 import {Product} from "../../services/products/domain/product";
 
 export class ProductsController extends DefaultController {
-    private readonly productService: ProductsService = ProductsService.getInstance();
+    private readonly productService = ProductsService.getInstance();
+    private readonly restaurantService = RestaurantService.getInstance();
 
     buildRoutes(): Router {
         const router = express.Router()

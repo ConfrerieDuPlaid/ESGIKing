@@ -83,26 +83,6 @@ export class MenuService {
         }
     }
 
-    private async verifyMenuMandatory(Menu: MenuWithoutId, authToken: string) {
-
-        const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
-        const isAdmin = await RestaurantService.getInstance().verifyAdminRestaurant(Menu.restaurant!, authToken);
-
-
-        if (!restaurant || !isAdmin) {
-            return false;
-        }
-        let allProductsInMenuAreInRestaurant = false;
-        Menu.products!.forEach(product => {
-            const productIsInRestaurant = restaurant.products!.includes(product);
-            if(!productIsInRestaurant){
-                allProductsInMenuAreInRestaurant = false;
-                return;
-            }
-        })
-        return allProductsInMenuAreInRestaurant;
-    }
-
     private async verificationOnMenu(Menu: MenuWithoutId, authToken: string) {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Menu.restaurant!);
