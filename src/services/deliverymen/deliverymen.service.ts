@@ -61,4 +61,10 @@ export class DeliverymenService {
             status: DeliverymenStatus.available
         }))
     }
+
+    async updateDeliverymanStatus(deliverymanId: string, newStatus: DeliverymenStatus) {
+        const deliveryman = await this.repository.getById(deliverymanId);
+        deliveryman.status = newStatus;
+        this.repository.save(deliveryman);
+    }
 }

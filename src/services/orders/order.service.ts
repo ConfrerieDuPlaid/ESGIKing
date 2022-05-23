@@ -137,21 +137,34 @@ export class OrderService {
         if(!this.isStatusNextFromCurrentStatus(newStatus, order.status))
             throw new ErrorResponse(`Cannot change status from ${order.status} to ${newStatus}.`, 422);
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
-            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("Order can't be delivered", 400)
+        if(isOrderPicker){
+            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("No address given", 400)
+            if (newStatus === "done" && order.address) throw new ErrorResponse("Order can't be handed out", 400)
             order.status = newStatus;
+            this.dispatchOrderStatusChanged(order);
         }
         return await order.save();
     }
 
     private dispatchOrderStatusChanged(order: OrderDocument): void {
-        //
+        if(!order.deliverymanId) return;
+        let newDeliverymanStatus: DeliverymenStatus;
+        switch (order.status) {
+            case "onTheWay": newDeliverymanStatus = DeliverymenStatus.delivering; break;
+            case "delivered": newDeliverymanStatus = DeliverymenStatus.available; break;
+            default: return;
+        }
+        this.deliverymenService.updateDeliverymanStatus(
+            order.deliverymanId,
+            newDeliverymanStatus
+        );
     }
 
     isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
         const oldToNextStatus: { [oldStatus:string]: string[] } = {
             "created" : ["inProgress"] ,
             "inProgress": ["done", "onTheWay"],
+            "onTheWay": ["delivered"]
         };
 
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);

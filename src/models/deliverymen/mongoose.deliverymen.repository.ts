@@ -14,4 +14,18 @@ export class MongooseDeliverymenRepository implements DeliverymenRepository{
         return DeliverymanAdapter.adapt(created);
     }
 
+    async getById(deliverymanId: string): Promise<Deliveryman> {
+        return await DeliverymanModel.findOne({_id: deliverymanId}).exec();
+    }
+
+    async save(deliveryman: Deliveryman): Promise<Deliveryman> {
+        const found = await DeliverymanModel.findOne({_id: deliveryman.id.value}).exec();
+        if(!found)return this.create(deliveryman);
+        else {
+            found.position = deliveryman.position;
+            found.status = deliveryman.status;
+        }
+        return DeliverymanAdapter.adapt(found.save());
+    }
+
 }

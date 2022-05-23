@@ -7,7 +7,7 @@ export class Deliveryman implements DeliverymanProps{
     readonly id: DeliverymanId;
     readonly name: string;
     readonly position: GpsPoint;
-    readonly status: DeliverymenStatus;
+    status: DeliverymenStatus;
 
     constructor(props: DeliverymanProps) {
         this.id = props.id;
