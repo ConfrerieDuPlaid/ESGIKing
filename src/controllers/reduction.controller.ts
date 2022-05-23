@@ -20,7 +20,20 @@ export class ReductionController extends DefaultController{
         return router
     }
 
-
+    /**
+     * Method : PUT
+     * URL : /reduction
+     * Permissions required : Admin
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "name" : "{{reduction name}}",
+     *     "amount" : {{reduction amount}}
+     * }
+     * @param res HTTP response object
+     *
+     * @returns ReductionDocument or 500 error
+     */
     async createReduction(req : Request, res: Response) {
         const authToken = getAuthorization(req);
         await super.sendResponse(req, res, async () => {
@@ -37,6 +50,16 @@ export class ReductionController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : GET
+     * URL : /reduction
+     * Permissions required : Admin
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns ReductionDocument array or 500 error
+     */
     async getAllReduction(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.Admin)
@@ -44,6 +67,16 @@ export class ReductionController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : GET
+     * URL : /reduction/:reductionId
+     * Permissions required : Admin
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns ReductionDocument or 500 error
+     */
     async getReductionById(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.Admin)
@@ -51,12 +84,37 @@ export class ReductionController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : DELETE
+     * URL : /reduction/:reductionId
+     * Permissions required : Admin
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns void or 400 error
+     */
     async deleteReduction(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             return await this.reductionService.deleteReduction(req.params.reductionId);;
         }, 204);
     }
 
+    /**
+     * Method : PATCH
+     * URL : /reduction/:reductionId
+     * Permissions required : Admin
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "name" : "{{reduction name}}",
+     *     "amount" : {{reduction amount}},
+     *     "status": {{status}}
+     * }
+     * @param res HTTP response object
+     *
+     * @returns ReductionDocument or 500 error
+     */
     async updateReduction(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             return await this.reductionService.updateReduction(req.params.reductionId, req.body);

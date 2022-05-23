@@ -23,7 +23,7 @@ export class AuthController extends DefaultController {
      * }
      * @param res HTTP response object
      *
-     * @returns UserDocument or 201 error
+     * @returns UserDocument or 400 error
      */
     async createUser (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
@@ -38,7 +38,7 @@ export class AuthController extends DefaultController {
 
     /**
      * Method : POST
-     * URL : /auth/auth
+     * URL : /auth/login
      * Permissions required : none
      *
      * @param req HTTP request object with JSON object
@@ -48,7 +48,7 @@ export class AuthController extends DefaultController {
      * }
      * @param res HTTP response object
      *
-     * @returns UserDocument or 201 error
+     * @returns UserDocument or 400 error
      */
     async logUser (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
