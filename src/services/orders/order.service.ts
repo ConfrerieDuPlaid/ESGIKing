@@ -5,9 +5,8 @@ import {RestaurantService} from "../restaurant.service";
 import {ReductionService} from "../reduction.service";
 import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
-import {ReductionModel, ReductionProps} from "../../models/reduction.model";
+import {ReductionModel} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
-import {UserModel} from "../../models";
 import {AuthService} from "../auth.service";
 
 
@@ -34,7 +33,7 @@ export class OrderService {
             return false;
         }
 
-        const amoutOfOrder = await OrderService.computeOrderAmount(Order);
+        const amoutOfOrder = await this.computeOrderAmount(Order);
 
         const model = new OrderModel({
             restaurant: Order.restaurant,
@@ -43,7 +42,9 @@ export class OrderService {
             products: Order.products,
             amount: amoutOfOrder,
             status: OrderStatus[0],
-            customer: Order.customer
+            customer: Order.customer,
+            address: Order.address
+
         })
 
         const newOrder = await model.save();
@@ -70,17 +71,20 @@ export class OrderService {
             }
         }
 
+        if (!Order.products && !Order.menus) {
+            throw new ErrorResponse("Empty order", 412)
+        }
+
         let productIsInTheRestaurant = true;
-        Order.products!.forEach(elm => {
+        if (Order.products && Order.products!.length > 0) Order.products.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
                 productIsInTheRestaurant = false;
                 return ;
             }
         })
 
-
         let menuIsInTheRestaurant = true;
-        Order.menus!.forEach(elm => {
+        if (Order.menus) Order.menus.forEach(elm => {
             if(!restaurant.menus!.includes(elm)){
                 menuIsInTheRestaurant = false;
                 return ;
@@ -91,11 +95,11 @@ export class OrderService {
     }
 
 
-    private static async computeOrderAmount(Order: OrderWithoutId) {
+    private async computeOrderAmount(Order: OrderWithoutId) {
         let amount = 0;
         let reduction = null;
         let price;
-        for (const elm of Order.products!) {
+        if (Order.products) for (const elm of Order.products!) {
             const product = await ProductModel.findById(elm)
             if (product)
                 reduction = await ReductionModel.findOne({
@@ -107,7 +111,7 @@ export class OrderService {
             amount += price;
         }
 
-        for (const elm of Order.menus!) {
+        if (Order.menus) for (const elm of Order.menus!) {
             const menu = await MenuModel.findById(elm)
             if(menu)
                 amount += menu.amount;
