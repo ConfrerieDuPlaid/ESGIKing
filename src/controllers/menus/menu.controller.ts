@@ -70,10 +70,10 @@ export class MenuController extends DefaultController{
      *
      * @param req HTTP request object with JSON object
      *  {
-     *     "name" : "cheese",
-     *     "restaurant": "6263109772af3aa79c2846fc",
-     *     "products" : ["6252eb2c547e3260e946cc3a", "6252eb2c547e3260e946cc3a", "6252eb2c547e3260e946cc3a"],
-     *     "amount" : 15
+     *     "name" : "{{menu name}}",
+     *     "restaurant": "{{restaurantId}}",
+     *     "products" : ["{{productId1}}", "{{productId2}}"],
+     *     "amount" : {{amount}}
      * }
      * @param res HTTP response object
      *
@@ -103,8 +103,8 @@ export class MenuController extends DefaultController{
      *
      * @param req HTTP request object with JSON object
      * {
-     *     "menuId": "626962c752bf08dcd3bd8ebb",
-     *     "name" : "test menu chese"
+     *     "menuId": "{{menuId}}",
+     *     "name" : "{{menu name}}"
      * }
      * @param res HTTP response object
      *
