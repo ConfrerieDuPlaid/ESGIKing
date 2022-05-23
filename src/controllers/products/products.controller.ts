@@ -21,7 +21,7 @@ export class ProductsController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const products: Product[] = await this.productService
                 .getAllProducts(req.query.order?.toString())
-            return products.map(product => ProductResponseAdapter.adapt(product));
+            return products.map(product => ProductResponseAdapter.adapt(product, req));
         });
     }
 
@@ -40,7 +40,7 @@ export class ProductsController extends DefaultController {
                 price: +req.body.price,
                 reduction: req.body.reduction
             });
-            return ProductResponseAdapter.adapt(product);
+            return ProductResponseAdapter.adapt(product, req);
         }, 201);
     }
 
