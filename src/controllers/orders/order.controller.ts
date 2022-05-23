@@ -21,6 +21,21 @@ export class OrderController extends DefaultController{
     }
 
 
+    /**
+     * Method : PUT
+     * URL : /order
+     * Permissions required : Customer or not connected if address is passed
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "restaurant": "{{restaurantId}}",
+     *     "products" : ["{{productId}}", "{{productId}}"],
+     *     "address": "{{address}}"
+     * }
+     * @param res HTTP response object
+     *
+     * @returns OrderDocument or 500 error
+     */
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
@@ -41,6 +56,16 @@ export class OrderController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : GET
+     * URL : /order/:restaurantId/status/{{status}}
+     * Permissions required : OrderPicker
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns OrderDocument or 500 error
+     */
     async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
@@ -54,6 +79,16 @@ export class OrderController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : PATCH
+     * URL : /order/:orderId/?status={{status}}
+     * Permissions required : OrderPicker
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns void or 400 error
+     */
     async updateOrder(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
