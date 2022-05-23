@@ -100,10 +100,9 @@ export class OrderService {
 
         if (order.menus) for (const menuId of order.menus!) {
             const menu = await MenuModel.findById(menuId)
+            amount += menu.amount;
         }
-
         return amount;
-
 
     }
 
