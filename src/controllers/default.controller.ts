@@ -2,6 +2,11 @@ import {Request, Response} from "express";
 import {ErrorResponse} from "../utils";
 
 export class DefaultController {
+    /**
+     * Default controller extended by all other controllers
+     * @param req Request object
+     * @param res Response object
+     */
     async sendResponse (req: Request, res: Response, callback: Function, expectedStatus: number = 200) {
         try {
             const response = await callback(req.body)
