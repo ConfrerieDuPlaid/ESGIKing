@@ -19,8 +19,7 @@ export class DeliverymenController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const deliverymen: Deliveryman[] = await this.deliverymenService
                 .getAll({
-                    status: getDeliverymanStatusFromString(req.query.status?.toString() || ""),
-                    restaurant: req.query.nearRestaurant?.toString()
+                    status: getDeliverymanStatusFromString(req.query.status?.toString() || "")
                 });
             return deliverymen.map(deliveryman => DeliverymanResponseAdapter.adapt(deliveryman));
         });

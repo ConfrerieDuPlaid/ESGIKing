@@ -24,10 +24,12 @@ export class DeliverymenService {
     }
 
     async getAll(props: {
-        status?: DeliverymenStatus,
-        restaurant?: string
+        status?: DeliverymenStatus
     }): Promise<Deliveryman[]> {
-        return this.repository.getAll();
+        let deliverymen = await this.repository.getAll();
+        if(props.status)
+            deliverymen = deliverymen.filter(deliveryman => deliveryman.status === props.status)
+        return deliverymen;
     }
 
     public async getNearestAvailableDeliverymanFromTheRestaurant(restaurantId: string) {
