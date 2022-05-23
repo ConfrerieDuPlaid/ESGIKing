@@ -114,13 +114,12 @@ export class OrderService {
         }
 
         return amount;
-
-
     }
 
     async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
-        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
-        if(isAdmin)
+        const isAStaffMember = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
+            || await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "Admin")
+        if(isAStaffMember)
             return await OrderModel.find({
                 restaurant: restaurantId,
                 status: status
