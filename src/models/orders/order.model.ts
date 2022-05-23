@@ -34,6 +34,11 @@ const OrderSchema = new Schema({
         ref: "users",
         required: false,
     },
+    deliveryman: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: false,
+    },
     address: {
         type: Schema.Types.String,
         required: false
@@ -54,6 +59,7 @@ export interface OrderProps {
     reductionId?: string;
     customer?: string;
     address?: string;
+    deliveryman?:string;
 }
 
 export type OrderDocument = OrderProps & Document

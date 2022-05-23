@@ -6,6 +6,7 @@ import {Roles} from "../../utils/roles";
 import {OrderService} from "../../services/orders/order.service";
 import {OrderDocument, OrderProps} from "../../models/orders/order.model";
 import {OrderStatus} from "../../services/orders/order.status";
+import {ChatDocument} from "../../models/chat.model";
 
 export class OrderController extends DefaultController{
 
@@ -16,6 +17,7 @@ export class OrderController extends DefaultController{
         const router = express.Router()
         router.put('/', express.json(), this.createOrder.bind(this))
         router.get('/:restaurantId/status/:status', express.json(), this.getOrdersByRestaurantIdAndStatus.bind(this))
+        router.get('/:orderId/chat', this.getOrderChat.bind(this))
         router.patch('/:orderId', express.json(), this.updateOrder.bind(this))
         return router
     }
@@ -44,9 +46,18 @@ export class OrderController extends DefaultController{
         }, 201);
     }
 
+    async getOrderChat(req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, [Roles.Customer, Roles.DeliveryMan]);
+            const authToken = getAuthorization(req);
+            return await this.orderService.getOrderChat(req.params.orderId, authToken);
+        }, 200)
+    }
+
+
     async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await AuthService.getInstance().verifyPermissions(req, [Roles.OrderPicker, Roles.Admin]);
             const authToken = getAuthorization(req);
             const res: OrderDocument[] = await this.orderService.getOrdersByRestaurantIdAndStatus(req.params.restaurantId, authToken, req.params.status);
             if(!res){

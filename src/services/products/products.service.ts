@@ -15,8 +15,8 @@ export class ProductsService {
         return ProductsService.instance
     }
 
-    async getAllProducts(): Promise<Product[]> {
-        return await this.repository.getAll();
+    async getAllProducts (orderParam: any): Promise<Product[]> {
+        return await this.repository.getAll(orderParam);
     }
 
     async createProduct(dto: ProductWithoutId): Promise<Product> {
@@ -31,7 +31,8 @@ export class ProductsService {
         const product: Product = Product.withoutId({
             name: dto.name,
             price: dto.price,
-            reduction: dto.reduction
+            reduction: dto.reduction,
+            spotlight: dto.spotlight
         })
         return await this.repository.create(product)
     }

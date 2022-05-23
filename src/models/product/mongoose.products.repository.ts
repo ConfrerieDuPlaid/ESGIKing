@@ -4,8 +4,13 @@ import {ProductDocument, ProductModel} from "./mongoose.product.model";
 import {ProductAdapter} from "./product.adapter";
 
 export class MongooseProductsRepository implements ProductRepository{
-    async getAll(): Promise<Product[]> {
-        const products: ProductDocument[] = await ProductModel.find().exec();
+    async getAll (orderParam: string | undefined): Promise<Product[]> {
+        const desc = -1
+        let order: any = [['spotlight', desc]]
+        if (orderParam && orderParam === "none") {
+            order = []
+        }
+        const products: ProductDocument[] = await ProductModel.find().sort(order).exec();
         return products.map(document => ProductAdapter.adapt(document));
     }
 
