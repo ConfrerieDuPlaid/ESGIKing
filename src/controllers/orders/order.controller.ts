@@ -54,7 +54,7 @@ export class OrderController extends DefaultController{
 
     async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await AuthService.getInstance().verifyPermissions(req, [Roles.OrderPicker, Roles.Admin]);
             const authToken = getAuthorization(req);
             const res: OrderDocument[] = await this.orderService.getOrdersByRestaurantIdAndStatus(req.params.restaurantId, authToken, req.params.status);
             if(!res){

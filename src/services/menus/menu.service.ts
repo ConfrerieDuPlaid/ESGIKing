@@ -187,4 +187,13 @@ export class MenuService {
         }
         return await MenuModel.find().sort(order).exec();
     }
+
+    async getMenuByRestaurantId(restaurantId: string, orderParam: string | undefined) {
+        const desc = -1
+        let order: any = [['spotlight', desc]]
+        if (orderParam && orderParam === "none") {
+            order = []
+        }
+        return await MenuModel.find({restaurant: restaurantId}).sort(order).exec();
+    }
 }
