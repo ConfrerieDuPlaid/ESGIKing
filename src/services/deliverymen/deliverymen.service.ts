@@ -2,13 +2,14 @@ import {Deliveryman, DeliverymanWithoutId} from "./domain/deliveryman";
 import {DeliverymenRepository} from "./domain/deliverymen.repository";
 import {DeliverymenModule} from "./deliverymen.module";
 import {ErrorResponse} from "../../utils";
-import {DeliverymenStatus, getDeliverymanStatusFromString} from "./domain/deliverymen.status";
-import {RestaurantDocument, RestaurantModel} from "../../models";
+import {DeliverymenStatus} from "./domain/deliverymen.status";
 import {GpsPoint} from "../../utils/gps.point";
+import {RestaurantService} from "../restaurant.service";
 
 export class DeliverymenService {
     private static instance: DeliverymenService;
     private readonly repository: DeliverymenRepository = DeliverymenModule.repository();
+    private readonly restaurantService: RestaurantService = RestaurantService.getInstance();
 
     public static getInstance (): DeliverymenService {
         if (DeliverymenService.instance === undefined) {
@@ -17,42 +18,35 @@ export class DeliverymenService {
         return DeliverymenService.instance
     }
 
-    async getAllDeliverymenByStatusAndClosestToRestaurant(props: {
-        status?: string,
-        restaurant?: string
-    }): Promise<Deliveryman[]> {
-        let deliverymen = await this.repository.getAll();
-        if(props.status) {
-            DeliverymenService.checkStringDeliverymanStatus(props.status)
-            deliverymen = deliverymen.filter(deliveryman => deliveryman.status === props.status)
-        }
-        if(props.restaurant) {
-            const restaurant: RestaurantDocument = await RestaurantModel.findById(props.restaurant).exec();
-            if(!restaurant) throw new ErrorResponse(`Restaurant ${props.restaurant} not found.`,404);
-            deliverymen = [DeliverymenService.getNearestDeliverymanFromTheRestaurant(deliverymen, restaurant.location)];
-        }
-        return deliverymen;
+    async getAllDeliverymenByStatus(status: DeliverymenStatus): Promise<Deliveryman[]> {
+        const deliverymen = await this.repository.getAll();
+        return deliverymen.filter(deliveryman => deliveryman.status === status);
     }
 
-    private static getNearestDeliverymanFromTheRestaurant(
-        deliverymen: Deliveryman[],
-        restaurant: GpsPoint
-    ) {
+    async getAll(props: {
+        status?: DeliverymenStatus,
+        restaurant?: string
+    }): Promise<Deliveryman[]> {
+        return this.repository.getAll();
+    }
+
+    public async getNearestAvailableDeliverymanFromTheRestaurant(restaurantId: string) {
+        const restaurant = await this.restaurantService.getOneRestaurant(restaurantId);
+        if(!restaurant?.location) {
+            throw new ErrorResponse(`Restaurant ${restaurantId} location not found`, 404);
+        }
+        const restaurantLocation = new GpsPoint(
+          restaurant.location.longitude,
+          restaurant.location.latitude
+        );
+        const deliverymen = await this.getAllDeliverymenByStatus(DeliverymenStatus.available);
         return deliverymen
             .reduce((prev, cur) => {
-                const currentIsTheNearest = cur.position.distanceTo(restaurant) < prev.position.distanceTo(restaurant);
+                const currentIsTheNearest = cur.position.distanceTo(restaurantLocation) < prev.position.distanceTo(restaurantLocation);
                 return currentIsTheNearest
                     ? cur
                     : prev
             });
-    }
-
-    private static checkStringDeliverymanStatus(status: string): void {
-        try {
-            getDeliverymanStatusFromString(status);
-        } catch (e) {
-            throw new ErrorResponse("Bad deliveryman status " + status, 400);
-        }
     }
 
     async registerDeliveryman(dto: DeliverymanWithoutId): Promise<Deliveryman> {

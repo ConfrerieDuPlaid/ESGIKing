@@ -1,5 +1,4 @@
 import mongoose, {Document, Schema} from "mongoose";
-import {Deliveryman} from "../../services/deliverymen/domain/deliveryman";
 
 const OrderSchema = new Schema({
     restaurant: {

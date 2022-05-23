@@ -3,7 +3,7 @@ import express, {Request, Response, Router} from "express";
 import {DeliverymanResponseAdapter} from "./deliveryman.response.adapter";
 import {Deliveryman} from "../../services/deliverymen/domain/deliveryman";
 import {DeliverymenService} from "../../services/deliverymen/deliverymen.service";
-import {DeliverymenStatus} from "../../services/deliverymen/domain/deliverymen.status";
+import {DeliverymenStatus, getDeliverymanStatusFromString} from "../../services/deliverymen/domain/deliverymen.status";
 
 export class DeliverymenController extends DefaultController {
     private readonly deliverymenService: DeliverymenService = DeliverymenService.getInstance();
@@ -18,8 +18,8 @@ export class DeliverymenController extends DefaultController {
     async getAllDeliverymen(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const deliverymen: Deliveryman[] = await this.deliverymenService
-                .getAllDeliverymenByStatusAndClosestToRestaurant({
-                    status: req.query.status?.toString(),
+                .getAll({
+                    status: getDeliverymanStatusFromString(req.query.status?.toString() || ""),
                     restaurant: req.query.nearRestaurant?.toString()
                 });
             return deliverymen.map(deliveryman => DeliverymanResponseAdapter.adapt(deliveryman));

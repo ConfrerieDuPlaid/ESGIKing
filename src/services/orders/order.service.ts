@@ -8,6 +8,7 @@ import {ReductionModel} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
 import {AuthService} from "../auth.service";
 import {DeliverymenService} from "../deliverymen/deliverymen.service";
+import {DeliverymenStatus} from "../deliverymen/domain/deliverymen.status";
 
 
 type OrderWithoutId = Omit<OrderProps, "_id">
@@ -29,7 +30,7 @@ export class OrderService {
 
         await this.verifyOrder(order);
         const amountOfOrder = await OrderService.computeOrderAmount(order);
-
+        const deliverymanId = this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant);
         return new OrderModel({
             restaurant: order.restaurant,
             menus: order.menus,
@@ -39,7 +40,7 @@ export class OrderService {
             status: OrderStatus[0],
             customer: order.customer,
             deliverymanId: order.deliverymanId
-            address: Order.address
+            address: order.address
         }).save();
 
     }

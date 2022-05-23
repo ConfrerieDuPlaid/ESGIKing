@@ -11,6 +11,7 @@ export class OrderController extends DefaultController{
 
 
     private readonly orderService: OrderService = OrderService.getInstance();
+    private readonly authService: AuthService = AuthService.getInstance();
 
     buildRoutes (): Router {
         const router = express.Router()
@@ -24,7 +25,7 @@ export class OrderController extends DefaultController{
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             if (req.body.address) {
-                await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+                await this.authService.verifyPermissions(req, Roles.Customer);
             }
             const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: OrderStatus[0],
@@ -46,7 +47,7 @@ export class OrderController extends DefaultController{
 
     async getOrdersByRestaurantIdAndStatus(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await this.authService.verifyPermissions(req, Roles.OrderPicker);
             const authToken = getAuthorization(req);
             const res: OrderDocument[] = await this.orderService.getOrdersByRestaurantIdAndStatus(req.params.restaurantId, authToken, req.params.status);
             if(!res){
@@ -59,7 +60,7 @@ export class OrderController extends DefaultController{
 
     async updateOrder(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await this.authService.verifyPermissions(req, Roles.OrderPicker);
             const authToken = getAuthorization(req);
             return await this.orderService.updateOrder(req.params.orderId, req.query.status?.toString() , authToken);
         }, 201);
