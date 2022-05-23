@@ -60,6 +60,7 @@ export interface OrderProps {
     customer?: string;
     deliverymanId?: string
     address?: string;
+    deliveryman?:string;
 }
 
 export type OrderDocument = OrderProps & Document

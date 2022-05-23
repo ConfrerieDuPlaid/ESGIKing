@@ -6,9 +6,12 @@ import {ProductModel} from "../../models/product/mongoose.product.model";
 import {OrderStatus} from "./order.status";
 import {ReductionModel} from "../../models/reduction.model";
 import {MenuModel} from "../../models/menus/menu.model";
+import {UserDocument, UserModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {DeliverymenService} from "../deliverymen/deliverymen.service";
 import {DeliverymenStatus} from "../deliverymen/domain/deliverymen.status";
+import {Roles} from "../../utils/roles";
+import {ChatDocument, ChatModel} from "../../models/chat.model";
 
 
 type OrderWithoutId = Omit<OrderProps, "_id">
@@ -16,6 +19,9 @@ type OrderWithoutId = Omit<OrderProps, "_id">
 export class OrderService {
 
     private static instance: OrderService
+
+    private chatErrMsg: string = "The chat is unavailable for this order"
+
 
     public static getInstance (): OrderService {
         if (OrderService.instance === undefined) {
@@ -107,9 +113,10 @@ export class OrderService {
     }
 
     async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
-        const isAdmin = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
-        if(isAdmin)
-            return OrderModel.find({
+        const isAStaffMember = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
+            || await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "Admin")
+        if(isAStaffMember)
+            return await OrderModel.find({
                 restaurant: restaurantId,
                 status: status
             });
@@ -167,5 +174,49 @@ export class OrderService {
         };
 
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
+    }
+
+    private async verifyUserInChat (authToken: string, userRole: string, order: OrderDocument) {
+        if (userRole === Roles.Customer.toString()) {
+            if (!order.customer) throw new ErrorResponse(this.chatErrMsg, 400)
+            const isOrderCustomer: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.customer)
+            if (!isOrderCustomer) throw new ErrorResponse("You're not allowed to view this chat", 403)
+        } else if (userRole === Roles.DeliveryMan.toString()) {
+            if (!order.deliveryman) throw new ErrorResponse(this.chatErrMsg, 400)
+            const isOrderDeliveryman: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.deliveryman)
+            if (!isOrderDeliveryman) throw new ErrorResponse("You're not allowed to view this chat", 403)
+        }
+    }
+
+    async getOrderChat (orderId: string, authToken: string): Promise<ChatDocument[]> {
+        const order: OrderDocument = await OrderModel.findById(orderId).exec()
+        const user: UserDocument = await UserModel.findOne({
+            session: authToken
+        }).exec()
+
+        if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
+        await this.verifyUserInChat(authToken, user.role, order)
+
+        return await ChatModel.find({
+            order: orderId
+        }).exec()
+    }
+
+    async sendInOrderChat (orderId: string, authToken: string, message: string) {
+        const order: OrderDocument = await OrderModel.findById(orderId).exec()
+        const user: UserDocument = await UserModel.findOne({
+            session: authToken
+        }).exec()
+
+        if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
+        await this.verifyUserInChat(authToken, user.role, order)
+
+        if (!message) throw new ErrorResponse("Message can't be empty", 412)
+        return new ChatModel({
+            order: orderId,
+            sender: user._id,
+            message: message,
+            date: new Date()
+        }).save()
     }
 }

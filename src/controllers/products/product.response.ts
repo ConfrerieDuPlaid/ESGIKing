@@ -1,5 +1,6 @@
 export interface ProductResponse {
     id: string,
     name: string,
-    price: number
+    price: number,
+    reduction?: string
 }
