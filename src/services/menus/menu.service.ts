@@ -1,4 +1,3 @@
-
 import {MenuDocument, MenuModel, MenuProps} from "../../models/menus/menu.model";
 import {ErrorResponse} from "../../utils";
 import {RestaurantService} from "../restaurant.service";
@@ -6,8 +5,6 @@ import {RestaurantModel} from "../../models";
 import {AuthService} from "../auth.service";
 import {Status} from "./menu.status";
 import {StaffService} from "../staff.service";
-import {Schema} from "mongoose";
-
 
 
 type MenuWithoutId = Partial<MenuProps>

@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import {Request} from 'express';
 
 export abstract class HttpUtils {
     public static getFullUrlOf(request: Request) {

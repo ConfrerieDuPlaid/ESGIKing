@@ -1,7 +1,5 @@
 import {UserDocument, UserModel} from "../models";
 import {ErrorResponse} from "../utils";
-import {Roles} from "../utils/roles";
-import {OrderDocument} from "../models/orders/order.model";
 import {OrderService} from "./orders/order.service";
 
 export class UserService {
