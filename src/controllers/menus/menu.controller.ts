@@ -22,6 +22,16 @@ export class MenuController extends DefaultController{
         return router
     }
 
+    /**
+     * Method : GET
+     * URL : /menu/:menuID
+     * Permissions required : logged in as OrderPicker or Admin
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns MenuDocument with menu data or 404 error if menu not found
+     */
     async getMenu (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req)
@@ -34,6 +44,16 @@ export class MenuController extends DefaultController{
         }, 200)
     }
 
+    /**
+     * Method : GET
+     * URL : /menu
+     * Permissions required : logged in as BigBoss
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns MenuDocument array with menu data or empty list not found
+     */
     async getAllMenu(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
@@ -43,6 +63,22 @@ export class MenuController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : PUT
+     * URL : /menu
+     * Permissions required : logged in as Admin
+     *
+     * @param req HTTP request object with JSON object
+     *  {
+     *     "name" : "cheese",
+     *     "restaurant": "6263109772af3aa79c2846fc",
+     *     "products" : ["6252eb2c547e3260e946cc3a", "6252eb2c547e3260e946cc3a", "6252eb2c547e3260e946cc3a"],
+     *     "amount" : 15
+     * }
+     * @param res HTTP response object
+     *
+     * @returns MenuDocument for created menu or 500 error
+     */
     async createMenu(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
@@ -60,6 +96,20 @@ export class MenuController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : PATCH
+     * URL : /menu/:menuId
+     * Permissions required : logged in as Admin
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "menuId": "626962c752bf08dcd3bd8ebb",
+     *     "name" : "test menu chese"
+     * }
+     * @param res HTTP response object
+     *
+     * @returns void or 500 error
+     */
     async updateMenu(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);
@@ -71,6 +121,16 @@ export class MenuController extends DefaultController{
         }, 201);
     }
 
+    /**
+     * Method : DELETE
+     * URL : /menu/:menuID
+     * Permissions required : logged in as Admin
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns Void or 500 error
+     */
     async deleteMenu (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const authToken = getAuthorization(req);

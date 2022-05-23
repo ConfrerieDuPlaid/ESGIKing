@@ -4,8 +4,10 @@ import {ErrorResponse} from "../utils";
 export class DefaultController {
     /**
      * Default controller extended by all other controllers
-     * @param req Request object
-     * @param res Response object
+     * @param req HTTP request object
+     * @param res HTTP response object
+     * @param callback Controller callback function that will call the service
+     * @param expectedStatus Expected return status
      */
     async sendResponse (req: Request, res: Response, callback: Function, expectedStatus: number = 200) {
         try {
@@ -14,8 +16,8 @@ export class DefaultController {
             res.status(expectedStatus).end()
         } catch (e: unknown) {
             const err = e as ErrorResponse
-            console.log(err.message)
-            if (err.status === undefined) err.status = 400
+            if (!err.status) err.status = 400
+            res.json(err.message)
             res.status(err.status).end()
         }
     }
