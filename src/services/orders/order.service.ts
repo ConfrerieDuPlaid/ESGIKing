@@ -30,7 +30,10 @@ export class OrderService {
 
         await this.verifyOrder(order);
         const amountOfOrder = await OrderService.computeOrderAmount(order);
-        const deliverymanId = this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant);
+        const isAddressInOrder = order.address !== undefined;
+        const deliveryman = isAddressInOrder
+            ? await this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant)
+            : undefined;
         return new OrderModel({
             restaurant: order.restaurant,
             menus: order.menus,
@@ -39,7 +42,7 @@ export class OrderService {
             amount: amountOfOrder,
             status: OrderStatus[0],
             customer: order.customer,
-            deliverymanId: order.deliverymanId
+            deliverymanId: deliveryman?.id.value,
             address: order.address
         }).save();
 
@@ -50,7 +53,7 @@ export class OrderService {
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(order.restaurant!);
         if (!restaurant) throw new ErrorResponse(`Restaurant ${order.restaurant} not found.`, 404)
 
-        if (!Order.products && !Order.menus) {
+        if (!order.products && !order.menus) {
             throw new ErrorResponse("Empty order", 412)
         }
 
@@ -137,9 +140,8 @@ export class OrderService {
         if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
             if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("Order can't be delivered", 400)
             order.status = newStatus;
-            return await order.save() !== null;
         }
-        return false
+        return await order.save();
     }
 
     private dispatchOrderStatusChanged(order: OrderDocument): void {
