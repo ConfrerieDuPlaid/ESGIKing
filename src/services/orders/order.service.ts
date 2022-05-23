@@ -152,6 +152,7 @@ export class OrderService {
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
         if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
+            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("Order can't be delivered", 400)
             order.status = newStatus;
             return await order.save() !== null;
         }
