@@ -14,6 +14,16 @@ export class ProductsController extends DefaultController {
         return router;
     }
 
+    /**
+     * Method : GET
+     * URL : /products
+     * Permissions required : none
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns ProductDocument or 500 error
+     */
     async getAllProducts(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const products: Product[] = await this.productService
@@ -22,6 +32,20 @@ export class ProductsController extends DefaultController {
         });
     }
 
+    /**
+     * Method : POST
+     * URL : /products
+     * Permissions required : OrderPicker
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "name": "{{product name}}",
+     *     "price": {{price}}
+     * }
+     * @param res HTTP response object
+     *
+     * @returns ProductDocument or 500 error
+     */
     async createProduct(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             const product: Product = await this.productService.createProduct({
