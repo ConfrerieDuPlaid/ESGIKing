@@ -6,6 +6,7 @@ import {Roles} from "../utils/roles";
 import {StaffModel} from "../models";
 import {Product} from "../services/products/domain/product";
 import {ProductResponseAdapter} from "./products/product.response.adapter";
+import {HttpUtils} from "../utils/http.utils";
 
 export class RestaurantController extends DefaultController {
 
@@ -44,7 +45,8 @@ export class RestaurantController extends DefaultController {
         await super.sendResponse(req, res, async () => {
             const restaurant = await this.restaurantService.getOneRestaurant(req.params.restaurantId);
             if(!restaurant?.products) throw new ErrorResponse(`Restaurant ${req.params.restaurantId} not found.`, 404);
-            return restaurant.products;
+            return restaurant.products
+                .map(id => `${HttpUtils.getBaseUrlOf(req)}/products/${id}`);
         });
     }
 
