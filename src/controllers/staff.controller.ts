@@ -14,6 +14,21 @@ export class StaffController extends DefaultController{
         return router
     }
 
+    /**
+     * Method : PUT
+     * URL : /staff
+     * Permissions required : BigBoss
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "restaurantID": "{{restaurantId}}",
+     *     "userID": "{{userId}}",
+     *     "role": "{{role name}}"
+     *     }
+     * @param res HTTP response object
+     *
+     * @returns StaffDocument or 500 error
+     */
     async addEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
@@ -21,6 +36,20 @@ export class StaffController extends DefaultController{
         }, 201)
     }
 
+    /**
+     * Method : DELETE
+     * URL : /staff
+     * Permissions required : BigBoss
+     *
+     * @param req HTTP request object with JSON object
+     * {
+     *     "restaurantID": "{{restaurantId}}",
+     *     "userID": "{{userId}}"
+     * }
+     * @param res HTTP response object
+     *
+     * @returns void or 500 error
+     */
     async removeEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
@@ -32,12 +61,32 @@ export class StaffController extends DefaultController{
         }, 204)
     }
 
+    /**
+     * Method : GET
+     * URL : /staff
+     * Permissions required : BigBoss
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns StaffDocument array or 500 error
+     */
     async getAllEmployees (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             return StaffService.getInstance().getAllStaff()
         })
     }
 
+    /**
+     * Method : GET
+     * URL : /staff/:staffId/?{{ressource}}={{ressourceId}} where ressource can be "staff" or "restaurant"
+     * Permissions required : BigBoss
+     *
+     * @param req HTTP request object
+     * @param res HTTP response object
+     *
+     * @returns StaffDocument or 500 error
+     */
     async getEmployee (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             if (req.query.ressource === "restaurant") {
