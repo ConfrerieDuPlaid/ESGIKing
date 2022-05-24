@@ -42,7 +42,11 @@ export class OrderController extends DefaultController{
      */
     async createOrder(req : Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            if (req.body.address) await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+            if (req.body.address) {
+                await AuthService.getInstance().verifyPermissions(req, Roles.Customer);
+                const authToken = getAuthorization(req)
+                req.body.customer = await AuthService.getInstance().getUserIdByAuthToken(authToken)
+            }
             const res: Boolean | OrderProps = await this.orderService.createOrder({
                 status: OrderStatus[0],
                 restaurant: req.body.restaurant,

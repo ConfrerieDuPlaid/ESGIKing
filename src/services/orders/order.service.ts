@@ -23,7 +23,7 @@ export class OrderService {
     private chatErrMsg: string = "The chat is unavailable for this order"
 
 
-    public static getInstance (): OrderService {
+    public static getInstance(): OrderService {
         if (OrderService.instance === undefined) {
             OrderService.instance = new OrderService()
         }
@@ -32,7 +32,7 @@ export class OrderService {
 
     private deliverymenService = DeliverymenService.getInstance();
 
-    public async createOrder (order: OrderWithoutId): Promise<OrderProps> {
+    public async createOrder(order: OrderWithoutId): Promise<OrderProps> {
 
         await this.verifyOrder(order);
         const amountOfOrder = await OrderService.computeOrderAmount(order);
@@ -54,7 +54,7 @@ export class OrderService {
 
     }
 
-    private async verifyOrder(order: OrderWithoutId): Promise<void> | never {
+    private async verifyOrder(order: OrderWithoutId): Promise<boolean> {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(order.restaurant!);
         if (!restaurant) throw new ErrorResponse(`Restaurant ${order.restaurant} not found.`, 404)
@@ -63,26 +63,26 @@ export class OrderService {
             throw new ErrorResponse("Empty order", 412)
         }
 
-        if(order.reductionId){
+        if (order.reductionId) {
             const reduction = await ReductionService.getInstance().getReductionById(order.reductionId);
-            if(reduction.restaurant !== restaurant?._id.toString() || reduction.status === 0){
+            if (reduction.restaurant !== restaurant?._id.toString() || reduction.status === 0) {
                 throw new ErrorResponse(`Wrong reduction id ${order.reductionId}`, 400)
             }
         }
 
         let productIsInTheRestaurant = true;
-        if (Order.products) Order.products!.forEach(elm => {
-            if(!restaurant.products!.includes(elm)){
+        if (order.products) order.products!.forEach(elm => {
+            if (!restaurant.products!.includes(elm)) {
                 productIsInTheRestaurant = false;
-                return ;
+                return;
             }
         })
 
         let menuIsInTheRestaurant = true;
-        if (Order.menus) Order.menus!.forEach(elm => {
-            if(!restaurant.menus!.includes(elm)){
+        if (order.menus) order.menus!.forEach(elm => {
+            if (!restaurant.menus!.includes(elm)) {
                 menuIsInTheRestaurant = false;
-                return ;
+                return;
             }
         })
         return productIsInTheRestaurant && menuIsInTheRestaurant;
@@ -113,10 +113,10 @@ export class OrderService {
 
     }
 
-    async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
+    async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string): Promise<OrderDocument[]> {
         const isAStaffMember = await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "OrderPicker")
             || await RestaurantService.getInstance().verifyStaffRestaurant(restaurantId, authToken, "Admin")
-        if(isAStaffMember)
+        if (isAStaffMember)
             return await OrderModel.find({
                 restaurant: restaurantId,
                 status: status
@@ -125,10 +125,10 @@ export class OrderService {
         throw new ErrorResponse("you're not a staff member of this restaurant", 403);
     }
 
-    async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string){
+    async getOrdersByStatusAndUserId(status: string, userId: string, authToken: string) {
 
         const isTheRightCustomer = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, userId);
-        if(!isTheRightCustomer)
+        if (!isTheRightCustomer)
             throw new ErrorResponse("you don't have tight to see this order", 401)
 
         return await OrderModel.find({
@@ -137,21 +137,23 @@ export class OrderService {
         }).exec();
     }
 
-    async updateOrder(orderId: string, newStatus: string | undefined , authToken: string): Promise<OrderDocument> {
+    async updateOrder(orderId: string, newStatus: string | undefined, authToken: string): Promise<boolean> {
         const order: OrderDocument = await OrderModel.findOne({_id: orderId}).exec();
-        if(!order) throw new ErrorResponse(`Order ${orderId} not found.`, 404);
-        if(!newStatus) return order;
-        if(!this.isStatusNextFromCurrentStatus(newStatus, order.status))
+        if (!order) throw new ErrorResponse(`Order ${orderId} not found.`, 404);
+        if (!newStatus) return false;
+        if (!this.isStatusNextFromCurrentStatus(newStatus, order.status))
             throw new ErrorResponse(`Cannot change status from ${order.status} to ${newStatus}.`, 422);
+
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
-        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
         const isDeliveryMan = await AuthService.getInstance().isValidRole(authToken, "DeliveryMan")
-        if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("No address given", 400)
-        if (newStatus === "done" && order.address) throw new ErrorResponse("Order can't be handed out", 400)
-        if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
-            order.status = newStatus;
-            this.dispatchOrderStatusChanged(order);
-            return await order.save() !== null;
+        if (isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)) {
+            if (newStatus === "onTheWay" && !order.address) throw new ErrorResponse("No address given", 400)
+            if (newStatus === "done" && order.address) throw new ErrorResponse("Order can't be handed out", 400)
+            if (this.isStatusNextFromCurrentStatus(newStatus, order.status)) {
+                order.status = newStatus;
+                this.dispatchOrderStatusChanged(order);
+                return await order.save() !== null;
+            }
         }
         if (isDeliveryMan && order.status === "onTheWay") {
             order.status = newStatus;
@@ -161,12 +163,17 @@ export class OrderService {
     }
 
     private dispatchOrderStatusChanged(order: OrderDocument): void {
-        if(!order.deliverymanId) return;
+        if (!order.deliverymanId) return;
         let newDeliverymanStatus: DeliverymenStatus;
         switch (order.status) {
-            case "onTheWay": newDeliverymanStatus = DeliverymenStatus.delivering; break;
-            case "delivered": newDeliverymanStatus = DeliverymenStatus.available; break;
-            default: return;
+            case "onTheWay":
+                newDeliverymanStatus = DeliverymenStatus.delivering;
+                break;
+            case "delivered":
+                newDeliverymanStatus = DeliverymenStatus.available;
+                break;
+            default:
+                return;
         }
         this.deliverymenService.updateDeliverymanStatus(
             order.deliverymanId,
@@ -174,28 +181,28 @@ export class OrderService {
         );
     }
 
-    isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean{
-        const oldToNextStatus: { [oldStatus:string]: string[] } = {
-            "created" : ["inProgress"] ,
+    isStatusNextFromCurrentStatus(newOrderStatus: string, currentOrderStatus: string): Boolean {
+        const oldToNextStatus: { [oldStatus: string]: string[] } = {
+            "created": ["inProgress"],
             "inProgress": ["done", "onTheWay"],
             "onTheWay": ["delivered"]
         };
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
     }
 
-    private async verifyUserInChat (authToken: string, userRole: string, order: OrderDocument) {
+    private async verifyUserInChat(authToken: string, userRole: string, order: OrderDocument) {
         if (userRole === Roles.Customer.toString()) {
             if (!order.customer) throw new ErrorResponse(this.chatErrMsg, 400)
             const isOrderCustomer: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.customer)
             if (!isOrderCustomer) throw new ErrorResponse("You're not allowed to view this chat", 403)
         } else if (userRole === Roles.DeliveryMan.toString()) {
-            if (!order.deliveryman) throw new ErrorResponse(this.chatErrMsg, 400)
-            const isOrderDeliveryman: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.deliveryman)
+            if (!order.deliverymanId) throw new ErrorResponse(this.chatErrMsg, 400)
+            const isOrderDeliveryman: Boolean = await AuthService.getInstance().verifyIfUserRequestedIsTheUserConnected(authToken, order.deliverymanId)
             if (!isOrderDeliveryman) throw new ErrorResponse("You're not allowed to view this chat", 403)
         }
     }
 
-    async getOrderChat (orderId: string, authToken: string): Promise<ChatDocument[]> {
+    async getOrderChat(orderId: string, authToken: string): Promise<ChatDocument[]> {
         const order: OrderDocument = await OrderModel.findById(orderId).exec()
         const user: UserDocument = await UserModel.findOne({
             session: authToken
@@ -209,7 +216,7 @@ export class OrderService {
         }).exec()
     }
 
-    async sendInOrderChat (orderId: string, authToken: string, message: string) {
+    async sendInOrderChat(orderId: string, authToken: string, message: string) {
         const order: OrderDocument = await OrderModel.findById(orderId).exec()
         const user: UserDocument = await UserModel.findOne({
             session: authToken
