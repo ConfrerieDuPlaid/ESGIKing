@@ -40,7 +40,8 @@ export class OrderService {
             products: Order.products,
             amount: amoutOfOrder,
             status: OrderStatus[0],
-            customer: Order.customer
+            customer: Order.customer,
+            address: Order.address
         })
 
         const newOrder = await model.save();
@@ -53,7 +54,6 @@ export class OrderService {
     }
 
     private async verifyOrder(Order: OrderWithoutId) {
-
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(Order.restaurant!);
 
         if (!restaurant) {
@@ -75,7 +75,6 @@ export class OrderService {
             }
         })
 
-
         let menuIsInTheRestaurant = true;
         if (Order.menus) Order.menus!.forEach(elm => {
             if(!restaurant.menus!.includes(elm)){
@@ -84,7 +83,6 @@ export class OrderService {
             }
         })
         return productIsInTheRestaurant && menuIsInTheRestaurant;
-
     }
 
 
@@ -111,8 +109,6 @@ export class OrderService {
         }
 
         return amount;
-
-
     }
 
     async getOrdersByRestaurantIdAndStatus(restaurantId: string, authToken: string, status: string) : Promise<OrderDocument[]> {
