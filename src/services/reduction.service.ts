@@ -82,7 +82,7 @@ export class ReductionService{
         if(reductionBody.amount){
             reduction.amount = reductionBody.amount
         }
-        if(reductionBody.status && (reductionBody.status! == "deactivated" || reductionBody.status! == "active")){
+        if(reductionBody.status && (reductionBody.status! === "deactivated" || reductionBody.status! === "active")){
             reduction.status =  reductionBody.status
         }
 

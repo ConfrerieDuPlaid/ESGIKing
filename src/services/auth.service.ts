@@ -45,7 +45,7 @@ export class AuthService {
                 {_id: token}
             ]
         })
-        if (typeof expectedRole == "string") return user.role === expectedRole
+        if (typeof expectedRole === "string") return user.role === expectedRole
         return expectedRole.indexOf(user.role) !== -1
     }
 
@@ -98,7 +98,7 @@ export class AuthService {
             sessions: authToken
         }).exec();
 
-        return userId == currentUser._id;
+        return userId === currentUser._id;
     }
 
     public async getUserIdByAuthToken (userAuth: string): Promise<string> {

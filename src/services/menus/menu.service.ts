@@ -170,7 +170,7 @@ export class MenuService {
                 return;
             }
         })
-        if (isFalse == 1) {
+        if (isFalse === 1) {
             return false;
         }
 

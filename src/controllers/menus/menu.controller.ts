@@ -99,7 +99,7 @@ export class MenuController extends DefaultController{
                     products: req.body.products,
                     amount: +req.body.amount
                 }, authToken);
-            if(!res || res == false){
+            if(!res || res === false){
                 throw new ErrorResponse("The menu cannot be added to the restaurant", 500)
             }
             return res

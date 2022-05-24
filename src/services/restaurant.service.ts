@@ -32,7 +32,7 @@ export class RestaurantService {
 
 
         for (let index = 0; index < staffs.length; index++) {
-            if(currentUser._id.toString() == staffs[index].userID.toString()){
+            if(currentUser._id.toString() === staffs[index].userID.toString()){
                 return true;
             }
         }
