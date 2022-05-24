@@ -15,6 +15,7 @@ export class DefaultController {
             res.json(response)
             res.status(expectedStatus).end()
         } catch (e: unknown) {
+            console.log(e)
             const err = e as ErrorResponse
             if (!err.status) err.status = 400
             res.json(err.message)

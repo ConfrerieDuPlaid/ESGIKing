@@ -68,7 +68,7 @@ export class OrderService {
         }
 
         let productIsInTheRestaurant = true;
-        Order.products!.forEach(elm => {
+        if (Order.products) Order.products!.forEach(elm => {
             if(!restaurant.products!.includes(elm)){
                 productIsInTheRestaurant = false;
                 return ;
@@ -77,7 +77,7 @@ export class OrderService {
 
 
         let menuIsInTheRestaurant = true;
-        Order.menus!.forEach(elm => {
+        if (Order.menus) Order.menus!.forEach(elm => {
             if(!restaurant.menus!.includes(elm)){
                 menuIsInTheRestaurant = false;
                 return ;
@@ -92,7 +92,7 @@ export class OrderService {
         let amount = 0;
         let reduction = null;
         let price;
-        for (const elm of Order.products!) {
+        if (Order.products) for (const elm of Order.products!) {
             const product = await ProductModel.findById(elm)
             if (product)
                 reduction = await ReductionModel.findOne({
@@ -104,7 +104,7 @@ export class OrderService {
             amount += price;
         }
 
-        for (const elm of Order.menus!) {
+        if (Order.menus) for (const elm of Order.menus!) {
             const menu = await MenuModel.findById(elm)
             if(menu)
                 amount += menu.amount;
@@ -155,6 +155,7 @@ export class OrderService {
         const oldToNextStatus: { [oldStatus:string]: string[] } = {
             "created" : ["inProgress"] ,
             "inProgress": ["done", "onTheWay"],
+            "onTheWay": ["done"]
         };
 
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
