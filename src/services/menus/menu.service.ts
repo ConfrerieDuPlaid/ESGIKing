@@ -96,16 +96,14 @@ export class MenuService {
         }
 
         let productIsInTheRestaurant = true;
-        Menu.products!.forEach(productId => {
-            if(!restaurant.products!.includes(productId)){
+        if (Menu.products) Menu.products!.forEach(productId => {
+            if(restaurant.products && !restaurant.products!.includes(productId)){
                 productIsInTheRestaurant = false;
                 return ;
             }
         })
 
         return productIsInTheRestaurant;
-
-
     }
 
     async updateMenu(menu: Partial<MenuProps>, menuId: string, restaurantId: string, authToken: string): Promise<Boolean> {

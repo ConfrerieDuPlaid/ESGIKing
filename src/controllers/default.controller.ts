@@ -12,14 +12,12 @@ export class DefaultController {
     async sendResponse (req: Request, res: Response, callback: Function, expectedStatus: number = 200) {
         try {
             const response = await callback(req.body)
-            res.json(response)
-            res.status(expectedStatus).end()
+            res.status(expectedStatus).send(response);
         } catch (e: unknown) {
             console.log(e)
             const err = e as ErrorResponse
             if (!err.status) err.status = 400
-            res.json(err.message)
-            res.status(err.status).end()
+            res.status(err.status).send(err.message);
         }
     }
 }

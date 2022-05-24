@@ -7,8 +7,9 @@
   "description": "Réalisation d’une API Node.JS permettant de réaliser des commandes aux bornes, sur un téléphone, ou en ligne pour une chaine de fast food et de gérer aussi les commandes en cuisine.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "rm -rf ./dist/* && npx typedoc --out dist/docs src/* && tsc",
+    "build": "rm -rf ./dist/* && tsc",
     "start": "node ./dist/index.js",
+    "doc": "npx typedoc --out dist/docs src/*",
     "heroku": "npm run build && rm -rf dist/package.json && cp package-cpy.json dist/package.json && cp tsconfig.json dist/tsconfig.json && cd dist && npm run heroku"
   },
   "repository": {

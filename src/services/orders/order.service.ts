@@ -36,7 +36,7 @@ export class OrderService {
 
         await this.verifyOrder(order);
         const amountOfOrder = await OrderService.computeOrderAmount(order);
-        const isAddressInOrder = order.address !== undefined;
+        const isAddressInOrder = !!order.address ;
         const deliveryman = isAddressInOrder
             ? await this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant)
             : undefined;
@@ -204,6 +204,7 @@ export class OrderService {
         const user: UserDocument = await UserModel.findOne({
             session: authToken
         }).exec()
+        if (!order || !user) throw new ErrorResponse("Unauthorized", 401)
 
         if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
         await this.verifyUserInChat(authToken, user.role, order)
@@ -218,6 +219,7 @@ export class OrderService {
         const user: UserDocument = await UserModel.findOne({
             session: authToken
         }).exec()
+        if (!order || !user) throw new ErrorResponse("Unauthorized", 401)
 
         if (order.status !== "onTheWay") throw new ErrorResponse(this.chatErrMsg, 400)
         await this.verifyUserInChat(authToken, user.role, order)

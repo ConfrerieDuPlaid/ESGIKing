@@ -42,13 +42,14 @@ export class DeliverymenService {
           restaurant.location.latitude
         );
         const deliverymen = await this.getAllDeliverymenByStatus(DeliverymenStatus.available);
-        return deliverymen
+        if (deliverymen) return deliverymen
             .reduce((prev, cur) => {
                 const currentIsTheNearest = cur.position.distanceTo(restaurantLocation) < prev.position.distanceTo(restaurantLocation);
                 return currentIsTheNearest
                     ? cur
                     : prev
             });
+        else return
     }
 
     async registerDeliveryman(dto: DeliverymanWithoutId): Promise<Deliveryman> {
