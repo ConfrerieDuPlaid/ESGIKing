@@ -5,6 +5,8 @@ import {ErrorResponse} from "../../utils";
 import {DeliverymenStatus} from "./domain/deliverymen.status";
 import {GpsPoint} from "../../utils/gps.point";
 import {RestaurantService} from "../restaurant.service";
+import {AuthService} from "../auth.service";
+import {Roles} from "../../utils/roles";
 
 export class DeliverymenService {
     private static instance: DeliverymenService;
@@ -52,10 +54,20 @@ export class DeliverymenService {
         else return
     }
 
-    async registerDeliveryman(dto: DeliverymanWithoutId): Promise<Deliveryman> {
+    async registerDeliveryman(dto: DeliverymanWithoutId, password: string): Promise<Deliveryman> {
+        console.log(dto, password)
         if(!dto.name) {
             throw new ErrorResponse('Deliveryman\'s name missing', 400);
         }
+
+        const user = await AuthService.getInstance().subscribe({
+            login: dto.name,
+            password: password,
+            role: Roles.toString(Roles.DeliveryMan)
+        }, null)
+
+        if (!user) throw new ErrorResponse("An error occured", 500)
+
         return await this.repository.create(Deliveryman.withoutId({
             name: dto.name,
             position: dto.position,

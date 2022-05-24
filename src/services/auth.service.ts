@@ -55,6 +55,7 @@ export class AuthService {
     }
 
     public async subscribe(user: UserWithoutId, token: string | null): Promise<UserDocument> {
+        console.log(user)
         if (!user.password) {
             throw new ErrorResponse("Missing password !", 400)
         }

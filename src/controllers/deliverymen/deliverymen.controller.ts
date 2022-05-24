@@ -27,11 +27,12 @@ export class DeliverymenController extends DefaultController {
 
     async addDeliveryman(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
+            console.log(req.body)
             const deliveryman: Deliveryman = await this.deliverymenService.registerDeliveryman({
                 name: req.body.name,
                 position: req.body.position,
                 status: DeliverymenStatus.available
-            });
+            }, req.body.password);
             return DeliverymanResponseAdapter.adapt(deliveryman);
         }, 201);
     }
