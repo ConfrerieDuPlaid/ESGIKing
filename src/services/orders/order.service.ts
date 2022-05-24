@@ -54,7 +54,7 @@ export class OrderService {
 
     }
 
-    private async verifyOrder(order: OrderWithoutId): Promise<boolean> {
+    private async verifyOrder(order: OrderWithoutId): Promise<void | never> {
 
         const restaurant = await RestaurantService.getInstance().getOneRestaurant(order.restaurant!);
         if (!restaurant) throw new ErrorResponse(`Restaurant ${order.restaurant} not found.`, 404)
@@ -70,22 +70,20 @@ export class OrderService {
             }
         }
 
-        let productIsInTheRestaurant = true;
-        if (order.products) order.products!.forEach(elm => {
-            if (!restaurant.products!.includes(elm)) {
-                productIsInTheRestaurant = false;
-                return;
-            }
-        })
+        if(order.products) {
+            order.products.forEach(product => {
+                if (!restaurant.products!.includes(product))
+                    throw new ErrorResponse(`Product ${product} not in restaurant ${restaurant._id}.`, 404);
+            })
+        }
 
-        let menuIsInTheRestaurant = true;
-        if (order.menus) order.menus!.forEach(elm => {
-            if (!restaurant.menus!.includes(elm)) {
-                menuIsInTheRestaurant = false;
-                return;
-            }
-        })
-        return productIsInTheRestaurant && menuIsInTheRestaurant;
+        if(order.menus){
+            console.log(order.menus)
+            order.menus.forEach(menuId => {
+                if (!restaurant.menus!.includes(menuId))
+                    throw new ErrorResponse(`Menu ${menuId} not in restaurant ${restaurant._id}.`, 404);
+            })
+        }
     }
 
 
