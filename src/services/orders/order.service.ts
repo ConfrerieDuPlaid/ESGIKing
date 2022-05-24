@@ -140,7 +140,12 @@ export class OrderService {
             return false;
 
         const isOrderPicker = await RestaurantService.getInstance().verifyStaffRestaurant(order.restaurant, authToken, "OrderPicker");
+        const isDeliveryMan = await AuthService.getInstance().isValidRole(authToken, "DeliveryMan")
         if(isOrderPicker && this.isStatusNextFromCurrentStatus(newStatus, order.status)){
+            order.status = newStatus;
+            return await order.save() !== null;
+        }
+        if (isDeliveryMan && order.status === "onTheWay") {
             order.status = newStatus;
             return await order.save() !== null;
         }
@@ -153,7 +158,6 @@ export class OrderService {
             "inProgress": ["done", "onTheWay"],
             "onTheWay": ["done"]
         };
-
         return oldToNextStatus[currentOrderStatus].includes(newOrderStatus);
     }
 }

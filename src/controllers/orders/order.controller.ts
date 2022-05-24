@@ -92,7 +92,7 @@ export class OrderController extends DefaultController{
      */
     async updateOrder(req: Request, res: Response){
         await super.sendResponse(req, res, async () => {
-            await AuthService.getInstance().verifyPermissions(req, Roles.OrderPicker);
+            await AuthService.getInstance().verifyPermissions(req, [Roles.OrderPicker, Roles.DeliveryMan]);
             const authToken = getAuthorization(req);
             let res: Boolean = false;
             if(req.query.status){
