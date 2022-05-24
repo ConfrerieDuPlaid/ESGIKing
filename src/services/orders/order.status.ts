@@ -1,6 +1,7 @@
 export enum OrderStatus{
-    "created",
+    "created" ,
     "preparation",
     "in process of delivery",
-    "delivered"
+    "delivered",
+    done = "done"
 }

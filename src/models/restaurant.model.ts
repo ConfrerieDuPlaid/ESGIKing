@@ -1,4 +1,5 @@
 import mongoose, {Document, Schema} from "mongoose";
+import {GpsPoint} from "../utils/gps.point";
 
 const restaurantSchema = new Schema({
     name: {
@@ -9,6 +10,10 @@ const restaurantSchema = new Schema({
         type: Schema.Types.String,
         required: true,
         unique: true
+    },
+    location: {
+        type: Schema.Types.Mixed,
+        required: true
     },
     products: [{
         type: Schema.Types.ObjectId,
@@ -33,6 +38,7 @@ export interface RestaurantProps {
     _id: string
     name: string
     address: string
+    location: GpsPoint
     products?: string[]
     menus?: string[]
 }

@@ -1,14 +1,23 @@
 import {DefaultController} from "./default.controller";
 import express, {Request, Response, Router} from "express";
-import {AuthService, RestaurantService} from "../services";
+import {AuthService, ProductsService, RestaurantService} from "../services";
 import {ErrorResponse, getAuthorization} from "../utils";
 import {Roles} from "../utils/roles";
+import {StaffModel} from "../models";
+import {Product} from "../services/products/domain/product";
+import {ProductResponseAdapter} from "./products/product.response.adapter";
+import {HttpUtils} from "../utils/http.utils";
+import {GpsPoint} from "../utils/gps.point";
 
 export class RestaurantController extends DefaultController {
+
+    readonly restaurantService = RestaurantService.getInstance();
+
     buildRoutes (): Router {
         const router = express.Router()
         router.put('/', express.json(), this.createRestaurant.bind(this))
         router.get('/:restaurantID', this.getOneRestaurant.bind(this))
+        router.get('/:restaurantId/products', this.getProductsInRestaurant.bind(this))
         router.get('/', this.getAllRestaurants.bind(this))
         router.delete('/:restaurantID', this.deleteRestaurant.bind(this))
         router.patch('/addProduct/', express.json(), this.addAproductInRestaurant.bind(this))
@@ -70,9 +79,30 @@ export class RestaurantController extends DefaultController {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
             return await RestaurantService.getInstance().createRestaurant({
                 name: req.body.name,
-                address: req.body.address
+                address: req.body.address,
+                location: this.getGpsPointInGeoJsonFromRequest(req)
             })
         }, 201)
+    }
+
+    private getGpsPointInGeoJsonFromRequest(req: express.Request): GpsPoint {
+        const geoJsonGeometry = req.body.location?.features[0]?.geometry;
+        if(!this.isGeoJsonValid(geoJsonGeometry))
+            throw new ErrorResponse("Bad GeoJSON", 400);
+
+        return new GpsPoint(
+            geoJsonGeometry.coordinates[0],
+            geoJsonGeometry.coordinates[1]
+        );
+    }
+
+    private isGeoJsonValid(location?: {type: string, coordinates: number[]}): boolean {
+        if(!location) return false;
+        const isPointType = location.type.toLowerCase() === "point";
+        const coordinates = location.coordinates;
+        const isCoordinatesArrayOfTwoNumbers = coordinates.length === 2
+            && !isNaN(+coordinates[0]) && !isNaN(+coordinates[1]);
+        return isPointType && isCoordinatesArrayOfTwoNumbers;
     }
 
     /**
@@ -102,6 +132,15 @@ export class RestaurantController extends DefaultController {
      *
      * @returns ResponseDocument array or 500 error
      */
+    async getProductsInRestaurant(req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            const restaurant = await this.restaurantService.getOneRestaurant(req.params.restaurantId);
+            if(!restaurant?.products) throw new ErrorResponse(`Restaurant ${req.params.restaurantId} not found.`, 404);
+            return restaurant.products
+                .map(id => `${HttpUtils.getBaseUrlOf(req)}/products/${id}`);
+        });
+    }
+
     async getAllRestaurants (req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)

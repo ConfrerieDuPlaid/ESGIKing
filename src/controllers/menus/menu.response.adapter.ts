@@ -5,13 +5,12 @@ import {MenuProps} from "../../models/menus/menu.model";
 export class MenuResponseAdapter {
     static adapt(menu: MenuProps, req: Request) {
         let linkToProduct: String[] = [];
-
         const restaurant = menu.restaurant
-            ? HttpUtils.getFullUrlOf(req) + menu.restaurant
+            ? HttpUtils.getBaseUrlOf(req) + "/restaurant/" + menu.restaurant
             : "";
 
         menu.products.forEach((product: string) => {
-            linkToProduct.push( HttpUtils.getFullUrlOf(req) + product)
+            linkToProduct.push( HttpUtils.getBaseUrlOf(req) + "/products/" + product)
         })
 
         return {

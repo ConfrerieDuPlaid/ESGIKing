@@ -15,6 +15,7 @@ export class MenuController extends DefaultController{
     buildRoutes (): Router {
         const router = express.Router()
         router.get('/:menuId', this.getMenu.bind(this))
+        router.get('/restaurant/:restaurantId', this.getMenuByRestaurantId.bind(this))
         router.get('/', express.json(), this.getAllMenu.bind(this))
         router.put('/', express.json(), this.createMenu.bind(this))
         router.patch('/:menuId', express.json(), this.updateMenu.bind(this))
@@ -57,9 +58,18 @@ export class MenuController extends DefaultController{
     async getAllMenu(req : Request, res: Response){
         await super.sendResponse(req, res, async () => {
             await AuthService.getInstance().verifyPermissions(req, Roles.BigBoss)
-            const menus = await this.menuService.getAllMenu();
+            const menus = await this.menuService.getAllMenu(req.query.order?.toString());
             return menus.map(menu => MenuResponseAdapter.adapt(menu, req))
+        }, 201);
+    }
 
+    async getMenuByRestaurantId(req : Request, res: Response){
+        await super.sendResponse(req, res, async () => {
+            await AuthService.getInstance().verifyPermissions(req, Roles.Customer)
+            const restaurantId = req.params.restaurantId!.toString()
+            const orderBy = req.query.order?.toString()
+            const menus = await this.menuService.getMenuByRestaurantId(restaurantId, orderBy);
+            return menus.map(menu => MenuResponseAdapter.adapt(menu, req))
         }, 201);
     }
 
