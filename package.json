@@ -8,9 +8,10 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "rm -rf ./dist/* && tsc",
+    "rebuild": "tsc",
     "start": "node ./dist/index.js",
     "doc": "npx typedoc --out dist/docs src/*",
-    "heroku": "npm run build && rm -rf dist/package.json && cp package-cpy.json dist/package.json && cp tsconfig.json dist/tsconfig.json && cd dist && npm run heroku"
+    "heroku": "rm -rf out-app/dist out-app/package.json && cp -R dist out-app/dist && cp package.json out-app/package.json && cd out-app && git add . && git commit -m 'publish' && git push heroku master"
   },
   "repository": {
     "type": "git",
