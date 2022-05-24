@@ -78,7 +78,6 @@ export class OrderService {
         }
 
         if(order.menus){
-            console.log(order.menus)
             order.menus.forEach(menuId => {
                 if (!restaurant.menus!.includes(menuId))
                     throw new ErrorResponse(`Menu ${menuId} not in restaurant ${restaurant._id}.`, 404);
