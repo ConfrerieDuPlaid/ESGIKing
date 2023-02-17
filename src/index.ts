@@ -14,16 +14,11 @@ const controllerPaths = {
     "/auth": AuthController
 }
 
-
-
-
-
-
 async function startServer (): Promise<void> {
-    await mongoose.connect(process.env.MONGO_URI as string, {
+    await mongoose.connect("mongodb+srv://cluster0.5rcec.mongodb.net/?retryWrites=true&w=majority" as string, {
         auth: {
-            username: process.env.MONGO_USER as string,
-            password: process.env.MONGO_PWD as string
+            username: "CleanCode" as string,
+            password: "DyGzPcLF12DFvaoc" as string
         }
     })
 
@@ -59,8 +54,8 @@ async function startServer (): Promise<void> {
     const deliverymenController = new DeliverymenController()
     app.use('/deliverymen', deliverymenController.buildRoutes());
 
-    app.listen(process.env.PORT, () => {
-        console.log("Server listening on port " + process.env.PORT);
+    app.listen(8080, () => {
+        console.log("Server listening on port 8080");
     });
 }
 

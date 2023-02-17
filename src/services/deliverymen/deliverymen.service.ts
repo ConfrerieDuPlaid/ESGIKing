@@ -7,7 +7,12 @@ import {GpsPoint} from "../../utils/gps.point";
 import {RestaurantService} from "../restaurant.service";
 import {AuthService} from "../auth.service";
 import {Roles} from "../../utils/roles";
+import {AWSError} from "aws-sdk";
+import {PutItemOutput} from "aws-sdk/clients/dynamodb";
+const AWS = require("aws-sdk");
+import {config} from "dotenv";
 
+config()
 export class DeliverymenService {
     private static instance: DeliverymenService;
     private readonly repository: DeliverymenRepository = DeliverymenModule.repository();
@@ -54,25 +59,30 @@ export class DeliverymenService {
         else return
     }
 
-    async registerDeliveryman(dto: DeliverymanWithoutId, password: string): Promise<Deliveryman> {
-        console.log(dto, password)
+    async registerDeliveryman(dto: DeliverymanWithoutId, password: string){
         if(!dto.name) {
             throw new ErrorResponse('Deliveryman\'s name missing', 400);
         }
 
-        const user = await AuthService.getInstance().subscribe({
-            login: dto.name,
-            password: password,
-            role: Roles.toString(Roles.DeliveryMan)
-        }, null)
+        AWS.config.update({
+            region: "eu-west-1",
+        });
+        const docClient = new AWS.DynamoDB.DocumentClient();
 
-        if (!user) throw new ErrorResponse("An error occured", 500)
-
-        return await this.repository.create(Deliveryman.withoutId({
-            name: dto.name,
-            position: dto.position,
-            status: DeliverymenStatus.available
-        }))
+        const params = {
+            TableName: "user",
+            Item: {
+                "_id": "z84f3a6ez5f43",
+                dto
+            }
+        };
+        docClient.put(params, function(err: AWSError, data: PutItemOutput) {
+            if (err) {
+                console.error("Unable to add user sarah. Error JSON:", JSON.stringify(err, null, 2));
+            } else {
+                console.log("PutItem succeeded: Sarah");
+            }
+        });
     }
 
     async updateDeliverymanStatus(deliverymanId: string, newStatus: DeliverymenStatus) {
