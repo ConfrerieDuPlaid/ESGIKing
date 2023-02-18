@@ -15,10 +15,10 @@ const controllerPaths = {
 }
 
 async function startServer (): Promise<void> {
-    await mongoose.connect("mongodb+srv://cluster0.5rcec.mongodb.net/?retryWrites=true&w=majority" as string, {
+    await mongoose.connect(process.env.URI as string, {
         auth: {
-            username: "CleanCode" as string,
-            password: "DyGzPcLF12DFvaoc" as string
+            username: process.env.DB_USER as string,
+            password: process.env.DB_SECRET as string
         }
     })
 

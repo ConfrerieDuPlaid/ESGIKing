@@ -8,9 +8,10 @@ import {RestaurantService} from "../restaurant.service";
 import {AuthService} from "../auth.service";
 import {Roles} from "../../utils/roles";
 import {AWSError} from "aws-sdk";
-import {PutItemOutput} from "aws-sdk/clients/dynamodb";
+import {GetItemOutput, PutItemOutput} from "aws-sdk/clients/dynamodb";
 const AWS = require("aws-sdk");
 import {config} from "dotenv";
+import {DeliverymanId} from "./domain/deliveryman.id";
 
 config()
 export class DeliverymenService {
@@ -33,10 +34,33 @@ export class DeliverymenService {
     async getAll(props: {
         status?: DeliverymenStatus
     }): Promise<Deliveryman[]> {
-        let deliverymen = await this.repository.getAll();
-        if(props.status)
-            deliverymen = deliverymen.filter(deliveryman => deliveryman.status === props.status)
-        return deliverymen;
+        AWS.config.update({
+            region: "eu-west-1",
+        });
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
+        const params = {
+            TableName: "user",
+        };
+        let deliverymen: any;
+        let returnData: Deliveryman[] = [];
+        deliverymen = await docClient.scan(params).promise();
+        deliverymen = deliverymen.Items
+
+        // @ts-ignore
+        deliverymen.forEach(deliveryman => {
+            if(deliveryman.dto && props.status == deliveryman.dto.status){
+                const res: Deliveryman = new Deliveryman({
+                    id: new DeliverymanId(deliveryman._id),
+                    name: deliveryman.dto.name,
+                    position: new GpsPoint(deliveryman.dto.position.longitude, deliveryman.dto.position.latitude),
+                    status: deliveryman.dto.status
+                })
+                returnData.push(res);
+            }
+        })
+        return returnData;
+
     }
 
     public async getNearestAvailableDeliverymanFromTheRestaurant(restaurantId: string) {
@@ -76,11 +100,12 @@ export class DeliverymenService {
                 dto
             }
         };
+
         docClient.put(params, function(err: AWSError, data: PutItemOutput) {
             if (err) {
-                console.error("Unable to add user sarah. Error JSON:", JSON.stringify(err, null, 2));
+                console.error( JSON.stringify(err, null, 2));
             } else {
-                console.log("PutItem succeeded: Sarah");
+                console.log("PutItem succeeded:" + params.Item.dto.name);
             }
         });
     }

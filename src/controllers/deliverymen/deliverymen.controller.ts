@@ -1,9 +1,24 @@
 import {DefaultController} from "../index";
+const fileUpload = require('express-fileupload');
 import express, {Request, Response, Router} from "express";
 import {DeliverymanResponseAdapter} from "./deliveryman.response.adapter";
 import {Deliveryman} from "../../services/deliverymen/domain/deliveryman";
 import {DeliverymenService} from "../../services/deliverymen/deliverymen.service";
 import {DeliverymenStatus, getDeliverymanStatusFromString} from "../../services/deliverymen/domain/deliverymen.status";
+import path from "path";
+import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
+import SendData = ManagedUpload.SendData;
+
+const AWS = require("aws-sdk");
+const fs = require("fs");
+
+const multer = require('multer');
+
+const upload = multer({
+    limits: {
+        fileSize: 4 * 1024 * 1024,
+    }
+});
 
 export class DeliverymenController extends DefaultController {
     private readonly deliverymenService: DeliverymenService = DeliverymenService.getInstance();
@@ -12,6 +27,7 @@ export class DeliverymenController extends DefaultController {
         const router = express.Router()
         router.get('/', this.getAllDeliverymen.bind(this));
         router.post('/', express.json(), this.addDeliveryman.bind(this));
+        router.post('/upload', upload.single('image'), this.addImage.bind(this))
         return router;
     }
 
@@ -27,7 +43,6 @@ export class DeliverymenController extends DefaultController {
 
     async addDeliveryman(req: Request, res: Response) {
         await super.sendResponse(req, res, async () => {
-            console.log(req.body)
             await this.deliverymenService.registerDeliveryman({
                 name: req.body.name,
                 position: req.body.position,
@@ -36,4 +51,27 @@ export class DeliverymenController extends DefaultController {
         }, 201);
     }
 
+    async addImage(req: Request, res: Response) {
+
+        // @ts-ignore
+        const image = req.file
+
+        const s3 = new AWS.S3()
+
+        const filename = image.originalName
+
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: `${filename}`,
+            Body: image.buffer
+        }
+
+        await s3.upload(params, (err: Error, data: SendData) => {
+            if (err) {
+                console.log(err)
+            }
+        })
+
+        return res.send(200);
+    }
 }
