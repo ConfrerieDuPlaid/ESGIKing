@@ -8,9 +8,9 @@ import {DeliverymenStatus, getDeliverymanStatusFromString} from "../../services/
 import path from "path";
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
+import {int} from "aws-sdk/clients/datapipeline";
 
 const AWS = require("aws-sdk");
-const fs = require("fs");
 
 const multer = require('multer');
 
@@ -42,9 +42,12 @@ export class DeliverymenController extends DefaultController {
     }
 
     async addDeliveryman(req: Request, res: Response) {
+        const token: number = Math.floor((Math.random() * 999999));
         await super.sendResponse(req, res, async () => {
             await this.deliverymenService.registerDeliveryman({
                 name: req.body.name,
+                phoneNumber: req.body.phoneNumber,
+                token: token.toString(),
                 position: req.body.position,
                 status: DeliverymenStatus.available
             }, req.body.password);
@@ -52,7 +55,6 @@ export class DeliverymenController extends DefaultController {
     }
 
     async addImage(req: Request, res: Response) {
-
         // @ts-ignore
         const image = req.file
 

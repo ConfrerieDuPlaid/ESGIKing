@@ -6,6 +6,14 @@ const deliverymanSchema = new Schema({
         type: Schema.Types.String,
         required: true
     },
+    phoneNumber: {
+        type: Schema.Types.String,
+        required: true
+    },
+    token: {
+        type: Schema.Types.String,
+        required: true
+    },
     position: {
         type: Schema.Types.Mixed,
         required: false
@@ -23,6 +31,8 @@ const deliverymanSchema = new Schema({
 export interface MongooseDeliverymanProps {
     _id: string;
     name: string;
+    phoneNumber: string;
+    token: string;
     position: GpsPoint;
     status: string;
 }

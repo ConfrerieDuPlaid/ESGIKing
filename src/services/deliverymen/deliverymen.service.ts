@@ -12,6 +12,7 @@ import {GetItemOutput, PutItemOutput} from "aws-sdk/clients/dynamodb";
 const AWS = require("aws-sdk");
 import {config} from "dotenv";
 import {DeliverymanId} from "./domain/deliveryman.id";
+import { v4 as uuidv4 } from 'uuid';
 
 config()
 export class DeliverymenService {
@@ -53,6 +54,8 @@ export class DeliverymenService {
                 const res: Deliveryman = new Deliveryman({
                     id: new DeliverymanId(deliveryman._id),
                     name: deliveryman.dto.name,
+                    phoneNumber: deliveryman.dto.phoneNumber,
+                    token: deliveryman.dto.token,
                     position: new GpsPoint(deliveryman.dto.position.longitude, deliveryman.dto.position.latitude),
                     status: deliveryman.dto.status
                 })
@@ -87,7 +90,8 @@ export class DeliverymenService {
         if(!dto.name) {
             throw new ErrorResponse('Deliveryman\'s name missing', 400);
         }
-
+        const id = uuidv4()
+        console.log(id)
         AWS.config.update({
             region: "eu-west-1",
         });
@@ -96,8 +100,9 @@ export class DeliverymenService {
         const params = {
             TableName: "user",
             Item: {
-                "_id": "z84f3a6ez5f43",
-                dto
+                "_id": id,
+                dto,
+                "active": false,
             }
         };
 

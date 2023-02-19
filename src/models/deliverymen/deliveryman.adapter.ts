@@ -9,6 +9,8 @@ export class DeliverymanAdapter {
         return new Deliveryman({
             id: new DeliverymanId(source._id),
             name: source.name,
+            phoneNumber: source.phoneNumber,
+            token: source.token,
             position: new GpsPoint(
                 source.position.longitude,
                 source.position.latitude

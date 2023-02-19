@@ -6,6 +6,8 @@ export class DeliverymanResponseAdapter {
         return {
             id: deliveryman.id.value,
             name: deliveryman.name,
+            token: deliveryman.token,
+            phoneNumber: deliveryman.phoneNumber,
             position: deliveryman.position,
             status: deliveryman.status
         };
