@@ -91,7 +91,7 @@ export class DeliverymenService {
             throw new ErrorResponse('Deliveryman\'s name missing', 400);
         }
         const id = uuidv4()
-        console.log(id)
+
         AWS.config.update({
             region: "eu-west-1",
         });
@@ -101,15 +101,27 @@ export class DeliverymenService {
             TableName: "user",
             Item: {
                 "_id": id,
+                "token": dto.token,
                 dto,
                 "active": false,
             }
         };
 
+        async function sendToken(token: string, phoneNumber: string) {
+            AWS.config.update({region: 'eu-west-1'});
+            var SNSParams = {
+                Message: 'Votre token est : ' + token,
+                PhoneNumber: dto.phoneNumber,
+            }
+
+            await new AWS.SNS({apiVersion: '2010-03-31'}).publish(SNSParams).promise();
+        }
+
         docClient.put(params, function(err: AWSError, data: PutItemOutput) {
             if (err) {
                 console.error( JSON.stringify(err, null, 2));
             } else {
+                sendToken(dto.token, dto.phoneNumber);
                 console.log("PutItem succeeded:" + params.Item.dto.name);
             }
         });
@@ -119,5 +131,25 @@ export class DeliverymenService {
         const deliveryman = await this.repository.getById(deliverymanId);
         deliveryman.status = newStatus;
         this.repository.save(deliveryman);
+    }
+
+    async activate(id: string, token: string) {
+        AWS.config.update({
+            region: "eu-west-1",
+        });
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
+        const params = {
+            TableName: "user",
+            Key: {
+                _id: id
+            },
+            UpdateExpression: "set active = :active",
+            ExpressionAttributeValues: {
+                ":active": true,
+            },
+        };
+
+        await docClient.update(params).promise();
     }
 }

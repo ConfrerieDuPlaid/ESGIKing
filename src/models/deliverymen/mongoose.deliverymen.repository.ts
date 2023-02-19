@@ -18,6 +18,12 @@ export class MongooseDeliverymenRepository implements DeliverymenRepository{
         return await DeliverymanModel.findOne({_id: deliverymanId}).exec();
     }
 
+    async activate(deliverymanId: string, token: string){
+        return await DeliverymanModel.updateOne({_id: deliverymanId, dto: {token: token}}, {
+            "active": true,
+        }).exec();
+    }
+
     async save(deliveryman: Deliveryman): Promise<Deliveryman> {
         const found = await DeliverymanModel.findOne({_id: deliveryman.id.value}).exec();
         if(!found)return this.create(deliveryman);

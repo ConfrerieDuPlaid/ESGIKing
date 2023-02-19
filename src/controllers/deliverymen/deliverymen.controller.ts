@@ -28,6 +28,7 @@ export class DeliverymenController extends DefaultController {
         router.get('/', this.getAllDeliverymen.bind(this));
         router.post('/', express.json(), this.addDeliveryman.bind(this));
         router.post('/upload', upload.single('image'), this.addImage.bind(this))
+        router.put('/activate', express.json(), this.activate.bind(this))
         return router;
     }
 
@@ -38,6 +39,12 @@ export class DeliverymenController extends DefaultController {
                     status: getDeliverymanStatusFromString(req.query.status?.toString() || "")
                 });
             return deliverymen.map(deliveryman => DeliverymanResponseAdapter.adapt(deliveryman));
+        });
+    }
+
+    async activate(req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            await this.deliverymenService.activate(req.body.id, req.body.token);
         });
     }
 
