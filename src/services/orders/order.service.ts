@@ -16,10 +16,16 @@ import AWS, {AWSError} from "aws-sdk";
 import {PutItemOutput} from "aws-sdk/clients/dynamodb";
 import {v4 as uuidv4} from "uuid";
 import {query} from "express";
+import {Handler} from "aws-sdk/clients/lambda";
+import * as https from "https";
+import {Message, ReceiveMessageResult} from "aws-sdk/clients/sqs";
 
 type OrderWithoutId = Omit<OrderProps, "_id">
 
 export class OrderService {
+
+    private sqs = new AWS.SQS({ apiVersion: "2012-11-05" })
+    private fifoQueueURL = "https://sqs.eu-west-1.amazonaws.com/132899589412/OrderQueue.fifo";
 
     private static instance: OrderService
 
@@ -27,6 +33,9 @@ export class OrderService {
 
 
     public static getInstance(): OrderService {
+        AWS.config.update({
+            region: "eu-west-1",
+        });
         if (OrderService.instance === undefined) {
             OrderService.instance = new OrderService()
         }
@@ -53,20 +62,23 @@ export class OrderService {
             TableName: "order",
             Item: {
                 "_id": id,
-                order
+                "customer": order.customer,
+                "amount": order.amount,
+                "restaurant": order.restaurant,
+                "products": order.products,
+                "orderstatus": order.status
             }
         };
         docClient.put(params, function(err: AWSError, data: PutItemOutput) {
             if (err) {
                 console.error( JSON.stringify(err, null, 2));
             } else {
-                console.log("PutItem succeeded:" + params.Item.order.restaurant);
+                console.log("PutItem succeeded:" + params.Item.restaurant);
             }
         });
 
-        const sqs = new AWS.SQS({ apiVersion: "2012-11-05" })
         const queueParams = {
-            QueueUrl: "https://sqs.eu-west-1.amazonaws.com/132899589412/OrderQueue.fifo",
+            QueueUrl: this.fifoQueueURL,
             MessageAttributes: {
                 "id": {
                     DataType: "String",
@@ -77,7 +89,7 @@ export class OrderService {
             MessageBody: JSON.stringify(order),
             MessageGroupId: id.toString()
         }
-        await sqs.sendMessage(queueParams, (err: AWSError, data) => {
+        await this.sqs.sendMessage(queueParams, (err: AWSError, data) => {
             console.log(err)
             console.log(data)
         }).promise()
@@ -94,6 +106,71 @@ export class OrderService {
             address: order.address
         }).save();
 
+    }
+
+    async getOrderFromQueue (): Promise<{ id: string }> {
+        const params = {
+            AttributeNames: [
+                "id"
+            ],
+            MaxNumberOfMessages: 1,
+            MessageAttributeNames: [ "All" ],
+            QueueUrl: this.fifoQueueURL,
+            VisibilityTimeout: 20,
+            WaitTimeSeconds: 0
+        }
+
+        let id = ""
+        let msgdata: Message;
+        await this.sqs.receiveMessage(params,  (err, data) => {
+            if (!err) {
+                if (data.Messages) {
+                    msgdata = data.Messages![0];
+                    id = msgdata.MessageAttributes!["id"].StringValue!;
+                }
+            } else {
+                console.log(err)
+            }
+        }).promise();
+
+        // @ts-ignore
+        if (msgdata) {
+            await this.updateOrderInAWS(id);
+            await this.deleteOrderFromQueue(msgdata!);
+            return {id: id};
+        }
+        return {id: id};
+    }
+
+    private async deleteOrderFromQueue (data: Message) {
+        const deleteParams = {
+            QueueUrl: this.fifoQueueURL,
+            ReceiptHandle: data.ReceiptHandle!
+        };
+        this.sqs.deleteMessage(deleteParams, function(err, data) {
+            if (err) {
+                console.log("Delete Error", err);
+            } else {
+                console.log("Message Deleted", data);
+            }
+        });
+    }
+
+    private async updateOrderInAWS (orderId: string) {
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
+        const params = {
+            TableName: "order",
+            Key: {
+                _id: orderId
+            },
+            UpdateExpression: "set orderstatus = :newStatus",
+            ExpressionAttributeValues: {
+                ":newStatus": OrderStatus[1],
+            },
+        };
+
+        await docClient.update(params).promise();
     }
 
     private async verifyOrder(order: OrderWithoutId): Promise<void | never> {

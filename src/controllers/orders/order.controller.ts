@@ -6,7 +6,6 @@ import {Roles} from "../../utils/roles";
 import {OrderService} from "../../services/orders/order.service";
 import {OrderDocument, OrderProps} from "../../models/orders/order.model";
 import {OrderStatus} from "../../services/orders/order.status";
-import {ChatDocument} from "../../models/chat.model";
 
 export class OrderController extends DefaultController{
 
@@ -21,6 +20,7 @@ export class OrderController extends DefaultController{
         router.get('/:orderId/chat', this.getOrderChat.bind(this))
         router.put('/:orderId/chat', express.json() , this.putInOrderChat.bind(this))
         router.patch('/:orderId', express.json(), this.updateOrder.bind(this))
+        router.patch('/', express.json(), this.getOrderFromQueue.bind(this))
         return router
     }
 
@@ -120,6 +120,12 @@ export class OrderController extends DefaultController{
             const authToken = getAuthorization(req);
             return await this.orderService.updateOrder(req.params.orderId, req.query.status?.toString() , authToken);
         }, 201);
+    }
+
+    async getOrderFromQueue (req: Request, res: Response) {
+        await super.sendResponse(req, res, async () => {
+            return await this.orderService.getOrderFromQueue();
+        }, 201)
     }
 
 }
