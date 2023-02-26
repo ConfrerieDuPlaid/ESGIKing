@@ -80,8 +80,8 @@ export class DeliverymenController extends DefaultController {
         const image = req.file
 
         const s3 = new AWS.S3()
-
-        const filename = image.originalName
+        console.log(image)
+        const filename = image.originalname
 
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
