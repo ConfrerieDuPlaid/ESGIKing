@@ -30,3 +30,19 @@ une documentation de l’ensemble de vos services web est attendue
 Bonus : un back-office, un front pour les bornes, un front pour la cuisine, 
 une application mobile pour passer commande, le suivi de livraison depuis une tablette ? 
 Une visualisation des produits disponible en restaurant en VR ?
+
+
+## Instructions de démarrage en local
+
+- Exécuter `npm install`
+- Exécuter `npm run build` pour builder le projet
+- Exécuter `npm run start` pour lancer le projet en local
+- Les accès à l'API se font via http://localhost:8080
+- Seuls certains endpoints sont fonctionnels dans le cadre de la démonstration du déploiement avec AWS Cloud
+  - Deliverymen :
+    - new deliveryman (POST)
+    - get all (GET)
+    - activate (PUT)
+  - Orders :
+    - place order (PUT)
+    - get order from queue (PATCH)

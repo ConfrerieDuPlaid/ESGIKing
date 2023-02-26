@@ -1,0 +1,14 @@
+INSTRUCTIONS POUR LANCER LE PROJET EN LOCAL
+
+- Exécuter npm install
+- Exécuter npm run build pour builder le projet
+- Exécuter npm run start pour lancer le projet en local
+- Les accès à l'API se font via http://localhost:8080
+- Seuls certains endpoints sont fonctionnels dans le cadre de la démonstration du déploiement avec AWS Cloud
+    -> Deliverymen :
+        - new deliveryman (POST)
+        - get all (GET)
+        - activate (PUT)
+    -> Orders :
+        - place order (PUT)
+        - get order from queue (PATCH)
