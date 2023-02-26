@@ -107,6 +107,7 @@ export class DeliverymenService {
             }
         };
 
+
         async function sendToken(token: string, phoneNumber: string) {
             AWS.config.update({region: 'eu-west-1'});
             var SNSParams = {

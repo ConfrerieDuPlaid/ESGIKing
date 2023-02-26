@@ -9,6 +9,8 @@ import path from "path";
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
 import {int} from "aws-sdk/clients/datapipeline";
+import {AWSError} from "aws-sdk";
+import {GetObjectOutput} from "aws-sdk/clients/s3";
 
 const AWS = require("aws-sdk");
 
@@ -29,6 +31,7 @@ export class DeliverymenController extends DefaultController {
         router.post('/', express.json(), this.addDeliveryman.bind(this));
         router.post('/upload', upload.single('image'), this.addImage.bind(this))
         router.put('/activate', express.json(), this.activate.bind(this))
+        router.get('/getImage', express.json(), this.getImage.bind(this))
         return router;
     }
 
@@ -59,6 +62,17 @@ export class DeliverymenController extends DefaultController {
                 status: DeliverymenStatus.available
             }, req.body.password);
         }, 201);
+    }
+
+    async getImage(req: Request, res: Response){
+        const s3 = new AWS.S3();
+        const params = {Bucket: 'touffu', Key: req.body.fileName};
+
+        s3.getObject(params, function(err: AWSError, data: GetObjectOutput) {
+            res.writeHead(200, {'Content-Type': 'image/jpeg'});
+            res.write(data.Body, 'binary');
+            res.end(null, 'binary');
+        });
     }
 
     async addImage(req: Request, res: Response) {
