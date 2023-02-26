@@ -12,7 +12,10 @@ import {DeliverymenService} from "../deliverymen/deliverymen.service";
 import {DeliverymenStatus} from "../deliverymen/domain/deliverymen.status";
 import {Roles} from "../../utils/roles";
 import {ChatDocument, ChatModel} from "../../models/chat.model";
-
+import AWS, {AWSError} from "aws-sdk";
+import {PutItemOutput} from "aws-sdk/clients/dynamodb";
+import {v4 as uuidv4} from "uuid";
+import {query} from "express";
 
 type OrderWithoutId = Omit<OrderProps, "_id">
 
@@ -33,13 +36,52 @@ export class OrderService {
     private deliverymenService = DeliverymenService.getInstance();
 
     public async createOrder(order: OrderWithoutId): Promise<OrderProps> {
+        AWS.config.update({
+            region: "eu-west-1",
+        });
 
-        await this.verifyOrder(order);
+        //await this.verifyOrder(order);
         const amountOfOrder = await OrderService.computeOrderAmount(order);
         const isAddressInOrder = !!order.address ;
         const deliveryman = isAddressInOrder
             ? await this.deliverymenService.getNearestAvailableDeliverymanFromTheRestaurant(order.restaurant)
             : undefined;
+
+        const id = uuidv4()
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        const params = {
+            TableName: "order",
+            Item: {
+                "_id": id,
+                order
+            }
+        };
+        docClient.put(params, function(err: AWSError, data: PutItemOutput) {
+            if (err) {
+                console.error( JSON.stringify(err, null, 2));
+            } else {
+                console.log("PutItem succeeded:" + params.Item.order.restaurant);
+            }
+        });
+
+        const sqs = new AWS.SQS({ apiVersion: "2012-11-05" })
+        const queueParams = {
+            QueueUrl: "https://sqs.eu-west-1.amazonaws.com/132899589412/OrderQueue.fifo",
+            MessageAttributes: {
+                "id": {
+                    DataType: "String",
+                    StringValue: id.toString()
+                }
+            },
+            MessageDeduplicationId: id.toString(),
+            MessageBody: JSON.stringify(order),
+            MessageGroupId: id.toString()
+        }
+        await sqs.sendMessage(queueParams, (err: AWSError, data) => {
+            console.log(err)
+            console.log(data)
+        }).promise()
+
         return new OrderModel({
             restaurant: order.restaurant,
             menus: order.menus,
@@ -91,14 +133,15 @@ export class OrderService {
         let reduction = null;
         let price;
         if (order.products) for (const productId of order.products!) {
-            const product = await ProductModel.findById(productId)
-            if (product)
-                reduction = await ReductionModel.findOne({
-                    status: 1,
-                    restaurant: order.restaurant,
-                    product: product._id,
-                });
-            price = !reduction ? product.price : product.price - (product.price * (reduction.amount / 100));
+            // const product = await ProductModel.findById(productId)
+            // if (product)
+            //     reduction = await ReductionModel.findOne({
+            //         status: 1,
+            //         restaurant: order.restaurant,
+            //         product: product._id,
+            //     });
+            price = 10;
+            // price = !reduction ? product.price : product.price - (product.price * (reduction.amount / 100));
             amount += price;
         }
 
